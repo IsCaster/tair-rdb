@@ -21,9 +21,13 @@
 
 #include "storage_manager.hpp"
 
+#include <sstream>
+#include <iomanip>
+
 namespace tair
 {
 
+  std::string hexStr(char *data, int len);
 
   class request_smembers:public base_packet
   {
@@ -62,6 +66,7 @@ namespace tair
     {
       HEADER_VERIFY;
       GETKEY_FROM_DATAENTRY(input, key);
+      log_debug("et_smembers::decode key=%s",hexStr(key.get_data(),key.get_size()).c_str());
       return true;
     }
 

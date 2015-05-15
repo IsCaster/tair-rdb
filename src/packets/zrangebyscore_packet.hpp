@@ -37,7 +37,7 @@ namespace tair
         ss<<std::hex;
         ss<<std::setfill('0')<<std::setw(2);
         for(int i(0);i<len;++i)
-            ss<<"\\x"<<data[i];
+            ss<<"\\x"<<(unsigned int)data[i];
         return ss.str();
     }
     class request_zrangebyscore:public base_packet

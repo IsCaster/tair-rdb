@@ -1916,7 +1916,7 @@ FAIL:
         if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
             send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
         }
-        TBSYS_LOG(DEBUG, "end sadd:ret:%d",ret);
+        TBSYS_LOG(DEBUG, "end zadd:ret:%d",ret);
 
         new_config_version = response->config_version;
         this_wait_object_manager->destroy_wait_object(cwo);
