@@ -65,6 +65,9 @@ namespace tair {
       cmd_map["hmset"] = &tair_client::do_cmd_hmset;
       cmd_map["hmget"] = &tair_client::do_cmd_hmget;
       cmd_map["hgetall"] = &tair_client::do_cmd_hgetall;
+
+      cmd_map["zadd"] = &tair_client::do_cmd_zadd;
+	  cmd_map["zrangebyscore"] = &tair_client::do_cmd_zrangebyscore;
    }
 
    tair_client::~tair_client()
@@ -347,7 +350,19 @@ namespace tair {
                  "------------------------------------------------\n"
                  "SYNOPSIS   : get key [area]\n"
             );
-      } else if (cmd == NULL || strcmp(cmd, "mget") == 0) {
+      } else if (cmd == NULL || strcmp(cmd, "zadd") == 0) {
+         fprintf(stderr,
+                 "------------------------------------------------\n"
+                 "SYNOPSIS   : zadd key score value [area] [version] [expired]\n"
+                 "DESCRIPTION: area   - namespace , default: 0\n"
+                 "             expired- in seconds, default: 0,never expired\n"
+            );
+      }else if (cmd == NULL || strcmp(cmd, "zrangebyscore") == 0) {
+         fprintf(stderr,
+                 "------------------------------------------------\n"
+                 "SYNOPSIS   : zrangebyscore key start end [area] [withscore]\n"
+            );
+      }else if (cmd == NULL || strcmp(cmd, "mget") == 0) {
          fprintf(stderr,
                  "------------------------------------------------\n"
                  "SYNOPSIS   : mget key1 ... keyn area\n"
@@ -558,8 +573,8 @@ namespace tair {
       int area = default_area;
       if (param.size() >= 2U) {
          char *p=param[1];
-         if (*p == 'n') {
-            area |= TAIR_FLAG_NOEXP;
+         if (*p == 'n') {   
+            area |= TAIR_FLAG_NOEXP;  //    (0x0c000000)
             p ++;
          }
          area |= atoi(p);
@@ -583,6 +598,132 @@ namespace tair {
       if (akey) free(akey);
       return ;
    }
+
+
+  //zadd
+  /*int tair_client_impl::zadd(const int area, const data_entry &key, const double score, const data_entry &value,
+          const int expire, const int version)
+
+          "SYNOPSIS   : zadd key score value [area] [version] [expired]\n"
+    */
+   
+  void tair_client::do_cmd_zadd(VSTRING &param) {
+	 if (param.size() < 3U || param.size() > 6U ) {
+		print_help("zadd");
+		return;
+	 }
+	 
+ 	 double score = atof(param[1]);
+	 
+	 int area = default_area;
+	 if (param.size() >= 4U) {
+		 char *p=param[3];
+		 if (*p == 'n') {
+			 area |= TAIR_FLAG_NOEXP;
+			 p ++;
+		 }
+		 area |= atoi(p);
+	 }
+  
+	 char *akey = NULL;
+	 int pkeysize = 0;
+	 char* pkey = canonical_key(param[0], &akey, &pkeysize);
+	 data_entry key(pkey, pkeysize, false);
+	 data_entry value(param[2], false);   //monitor sadd;
+  
+	 int version = NOT_CARE_VERSION;
+	 if (param.size() >= 5U) {
+		 version = atoi(param[4]);
+	 }
+  
+	 int expire = NOT_CARE_EXPIRE;
+	 if (param.size() >= 6U) {
+		 expire = atoi(param[5]);
+	 }
+  
+	 int ret = client_helper.zadd(area, key, score, value, expire, version);
+	 fprintf(stderr, "zadd: %s\n", client_helper.get_error_msg(ret));
+	 if (akey) free(akey);
+	 return ;
+  }
+   
+
+
+
+   
+   //zrangebyscore
+   /*
+   
+   int zrangebyscore (const int area, const data_entry & key, const double start,const double end,
+	   vector <data_entry *> &values, vector<double> &scores,const int limit,const int withscore);
+
+	   "SYNOPSIS   : zrangebyscore key start end [area] [withscore]\n"
+    */
+
+   
+   void tair_client::do_cmd_zrangebyscore(VSTRING &param)
+	  {
+		 if (param.size() < 3U || param.size() > 5U ) {
+			print_help("zrangebyscore");
+			return;
+		 }
+
+		 double start = atof(param[1]);
+		 double end = atof(param[2]);
+		 
+		 int area = default_area;
+		 if (param.size() >= 4U) {
+			char *p=param[3];
+			if (*p == 'n') {
+			   area |= TAIR_FLAG_NOEXP;
+			   p ++;
+			}
+			area |= atoi(p);
+		 }
+
+
+		 int limit = 0; // print_help does not have the indicator limit;
+		 
+		 int withscore = 0;
+		 if (param.size() >= 5U) {
+		 	withscore = atoi(param[4]);
+		 	}
+
+
+		 char *akey = NULL;
+		 int pkeysize = 0;
+		 char *pkey = canonical_key(param[0], &akey, &pkeysize);
+		 data_entry key(pkey, pkeysize, false);
+		 
+		 vector<data_entry*> dataset; //param->values
+		 vector<double> scoreset;  //param->scores
+		 
+		 //zrangebyscore
+		 int ret = client_helper.zrangebyscore(area, key, start, end, dataset, scoreset, limit, withscore);
+		 if (ret != TAIR_RETURN_SUCCESS) {
+			fprintf(stderr, "zrangebyscore failed: %s.\n",client_helper.get_error_msg(ret));
+		 } else if (dataset.size() > 0) {
+			fprintf(stderr, "KEY: %s\n", param[0]);
+			
+			for(size_t i = 0; i < dataset.size(); i++) {
+				
+			  // double score = scoreset[i];
+			   data_entry* data = dataset[i];
+			   if (data == NULL) {
+				   continue;
+			   }
+			   char *p = util::string_util::conv_show_string(data->get_data(), data->get_size());
+			   fprintf(stderr, "LEN: %d\n, raw data: %s, %s\n", data->get_size(), data->get_data(), p);
+			   if (p) free(p);
+			   delete data;
+			   
+			}
+			dataset.clear();
+		 }
+		 if (akey) free(akey);
+		 return ;
+	  }
+
 
    void tair_client::do_cmd_mget(VSTRING &param)
    {
@@ -653,11 +794,12 @@ namespace tair {
       return ;
    }
 
+   
 // remove
    void tair_client::do_cmd_remove(VSTRING &param)
    {
       if (param.size() < 2U) {
-         print_help("mremove");
+         print_help("remove");
          return;
       }
 
@@ -1060,6 +1202,13 @@ namespace tair {
    }
 
    //set
+
+
+   /*int sadd(const int area, const data_entry &key, const data_entry &value,
+              const int expire, const int version);
+
+      "SYNOPSIS   : sadd key value [area] [version] [expired]\n"
+      */
    void tair_client::do_cmd_sadd(VSTRING &param) {
       if (param.size() < 2U || param.size() > 5U ) {
          print_help("sadd");
@@ -1099,6 +1248,10 @@ namespace tair {
       return ;
    }
 
+   //int smembers(const int area, const data_entry &key, vector<data_entry*> &values);
+   
+   /*"SYNOPSIS   : smembers key [area]\n"*/
+   
    void tair_client::do_cmd_smembers(VSTRING &param) {
       if (param.size() < 1U || param.size() > 2U ) {
          print_help("smembers");
@@ -1181,7 +1334,9 @@ namespace tair {
       return ;
    }
 
-   //hset
+   //hset  
+   //"SYNOPSIS   : hset key field value [area] [version] [expired]\n"
+   
    void tair_client::do_cmd_hset(VSTRING &param) {
       if (param.size() < 3U || param.size() > 6U ) {
          print_help("hset");
@@ -1348,6 +1503,8 @@ namespace tair {
 /*
       int hmget(const int area, const data_entry &key, const vector<data_entry*> &fields,
       vector<data_entry*> &values);
+
+      "SYNOPSIS   : hmget key count field... [area]\n"
    */
       if (param.size() < 3U) {
          print_help("hmget");

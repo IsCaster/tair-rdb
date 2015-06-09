@@ -290,7 +290,8 @@ int rdb_manager::put(int bucket_number, data_entry & key, data_entry & value,
     redis_db *db = get_redis_instance();
     VERIFY_NAMESPACE(key.area);
     
-    log_debug("rdb_manager::put key=%s,size=%d,hex=%s",key.get_data(),key.get_size(),hexStr(key.get_data(),key.get_size()).c_str());
+    log_debug("rdb_manager::put key=%s,size=%d,hex=%s,value=%s"
+        ,key.get_data(),key.get_size(),hexStr(key.get_data(),key.get_size()).c_str(),hexStr(value.get_data(),value.get_size()).c_str() );
     value_item item;
 
     if(value.get_size() > DATA_ENTRY_MAX_SIZE) {

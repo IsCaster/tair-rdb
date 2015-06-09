@@ -94,6 +94,10 @@ namespace tair {
       void do_cmd_hmget(VSTRING &param);
       void do_cmd_hgetall(VSTRING &param);
       void do_cmd_hdel(VSTRING &param);
+	  
+	  //sorted set
+	  void do_cmd_zadd(VSTRING &param);
+	  void do_cmd_zrangebyscore(VSTRING &param);
     private:
 #ifdef HAVE_LIBREADLINE
       char *input(char *buffer, size_t size);
