@@ -43,11 +43,11 @@ public:
     const static int max_namespace;
 };
 
-const char* TairClientRDBTest::server_addr = "10.232.4.19:5198";
+const char* TairClientRDBTest::server_addr = "localhost:5198";
 const char* TairClientRDBTest::slave_server_addr = NULL;
 const char* TairClientRDBTest::group_name = "group_1";
 
-const int TairClientRDBTest::default_namespace = 0;
+const int TairClientRDBTest::default_namespace = 4;
 const int TairClientRDBTest::max_namespace = 16;
 
 

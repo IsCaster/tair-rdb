@@ -332,7 +332,7 @@ AM_CPPFLAGS = @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I${top_srcdir}/src/storage \
 			 -I${top_srcdir}/src/client \
        -I${top_srcdir}/src  \
-       -I${top_srcdir}/test/gtest \
+       -I/opt/gtest-1.7.0/include \
        -I${top_srcdir}/src/storage/kdb/kyotocabinet
 
 LDADD = \

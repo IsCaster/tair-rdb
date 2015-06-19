@@ -1,4 +1,4 @@
-SUBDIRS=interface_test localqueue_test binlog_test rdb_interface_test
+SUBDIRS=rdb_interface_test
 AM_CPPFLAGS= @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I$(TBLIB_ROOT)/include/tbnet \
 			 -I${top_srcdir}/src/common \
@@ -10,7 +10,7 @@ AM_CPPFLAGS= @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I${top_srcdir}/src/client \
        -I${top_srcdir}/src  \
        -I${top_srcdir}/src/storage/kdb/kyotocabinet \
-       -I${top_srcdir}/test/gtest \
+       -I/opt/gtest-1.7.0/include \
        ${BOOST_CPPFLAGS}
 
 LDADD= \

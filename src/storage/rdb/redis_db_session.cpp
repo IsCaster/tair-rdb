@@ -20,6 +20,7 @@
 #include "redis_define.h"
 #include "scope_lock.h"
 #include "redis/command.h"
+#include <tbsys.h>
 
 USE_NS
 
@@ -2215,6 +2216,7 @@ int redis_db_session::zrange(MKEY, int start, int end, OITEMSVSN,
 int redis_db_session::genericZrangebyscore(MKEY, double start, double end,
         OITEMSVSN, double** scores_items, int* scores_items_len, int limit, int withscore, bool reverse)
 {
+    log_debug("enter redis_db_session::genericZrangebyscore()\n");
     int ret;
     redisClient *client;
     void* client_return_value = NULL;
@@ -2298,12 +2300,27 @@ int redis_db_session::genericZrangebyscore(MKEY, double start, double end,
     int scores_items_index = 0;
     while((node = nextValueItemNode(&it)) != NULL)
     {
+        log_debug("redis_db_session::genericZrangebyscore() node->type=%d,size=%u\n",node->type,node->size);
         if(node->type == NODE_TYPE_ROBJ) {
             robj* obj = (robj*)(node->obj.obj);
-            (*item)[items_index].data_len = sdslen((char*)(obj->ptr));
-            (*item)[items_index].data = new char[(*item)[items_index].data_len];
-            memcpy((*item)[items_index].data, obj->ptr, sdslen((char*)obj->ptr));
-            items_index++;
+            log_debug("redis_db_session::genericZrangebyscore() obj->encoding=%u",obj->encoding);
+            if(obj->encoding== REDIS_STRING)
+            {
+                (*item)[items_index].data_len = sdslen((char*)(obj->ptr));
+                (*item)[items_index].data = new char[(*item)[items_index].data_len];
+                memcpy((*item)[items_index].data, obj->ptr, sdslen((char*)obj->ptr));
+                items_index++;
+            }
+            else if(obj->encoding==REDIS_ENCODING_INT)
+            {
+                //decode the string from long/void*
+                char * long_to_str=new char[31];
+                snprintf(long_to_str,31,"%ld",obj->ptr);
+                (*item)[items_index].data_len = strnlen(long_to_str,31); 
+                (*item)[items_index].data = long_to_str; 
+                items_index++;
+                log_debug("redis_db_session::genericZrangebyscore() REDIS_ENCODING_INT ptr=%ld,data=%s",obj->ptr,long_to_str );
+            }
         } else if(node->type == NODE_TYPE_BUFFER) {
             (*item)[items_index].data_len = node->size;
             (*item)[items_index].data = new char[(*item)[items_index].data_len];

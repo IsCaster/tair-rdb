@@ -78,9 +78,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-sbin_PROGRAMS = interface_test$(EXEEXT) kdb_test_stat$(EXEEXT) \
-	kdb_test_manager$(EXEEXT) kdb_test_bucket$(EXEEXT) \
-	kdb_test_kyotocabinet$(EXEEXT)
+sbin_PROGRAMS = interface_test$(EXEEXT) kdb_test_manager$(EXEEXT) \
+	kdb_test_bucket$(EXEEXT) kdb_test_kyotocabinet$(EXEEXT)
 subdir = test/interface_test
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -116,7 +115,6 @@ interface_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
 	$(top_builddir)/src/storage/mdb/libmdb.a \
 	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
 	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -130,7 +128,6 @@ kdb_test_bucket_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
 	$(top_builddir)/src/storage/mdb/libmdb.a \
 	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
 	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_kdb_test_kyotocabinet_OBJECTS = test_kdb_kyotocabinet.$(OBJEXT)
@@ -140,7 +137,6 @@ kdb_test_kyotocabinet_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
 	$(top_builddir)/src/storage/mdb/libmdb.a \
 	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
 	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_kdb_test_manager_OBJECTS = test_kdb_manager.$(OBJEXT)
@@ -150,17 +146,6 @@ kdb_test_manager_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
 	$(top_builddir)/src/storage/mdb/libmdb.a \
 	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
-	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
-am_kdb_test_stat_OBJECTS = test_stat_manager.$(OBJEXT)
-kdb_test_stat_OBJECTS = $(am_kdb_test_stat_OBJECTS)
-kdb_test_stat_LDADD = $(LDADD)
-kdb_test_stat_DEPENDENCIES =  \
-	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
 	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 AM_V_P = $(am__v_P_@AM_V@)
@@ -216,11 +201,9 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(interface_test_SOURCES) $(kdb_test_bucket_SOURCES) \
-	$(kdb_test_kyotocabinet_SOURCES) $(kdb_test_manager_SOURCES) \
-	$(kdb_test_stat_SOURCES)
+	$(kdb_test_kyotocabinet_SOURCES) $(kdb_test_manager_SOURCES)
 DIST_SOURCES = $(interface_test_SOURCES) $(kdb_test_bucket_SOURCES) \
-	$(kdb_test_kyotocabinet_SOURCES) $(kdb_test_manager_SOURCES) \
-	$(kdb_test_stat_SOURCES)
+	$(kdb_test_kyotocabinet_SOURCES) $(kdb_test_manager_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -388,13 +371,13 @@ AM_CPPFLAGS = @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I${top_srcdir}/src/storage \
 			 -I${top_srcdir}/src/client \
        -I${top_srcdir}/src  \
-       -I${top_srcdir}/src/storage/kdb/kyotocabinet
+       -I${top_srcdir}/src/storage/kdb/kyotocabinet \
+			 -I/opt/gtest-1.7.0/include
 
 LDADD = \
 	  $(top_builddir)/src/client/.libs/libtairclientapi.a \
 	  $(top_builddir)/src/storage/mdb/libmdb.a \
 	  $(top_builddir)/src/storage/fdb/libfdb.a \
-	  $(top_builddir)/src/storage/kdb/libkdb.a \
     ${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	  $(TBLIB_ROOT)/lib/libtbnet.a \
 	  $(TBLIB_ROOT)/lib/libtbsys.a 
@@ -520,10 +503,6 @@ kdb_test_manager$(EXEEXT): $(kdb_test_manager_OBJECTS) $(kdb_test_manager_DEPEND
 	@rm -f kdb_test_manager$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(kdb_test_manager_OBJECTS) $(kdb_test_manager_LDADD) $(LIBS)
 
-kdb_test_stat$(EXEEXT): $(kdb_test_stat_OBJECTS) $(kdb_test_stat_DEPENDENCIES) $(EXTRA_kdb_test_stat_DEPENDENCIES) 
-	@rm -f kdb_test_stat$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(kdb_test_stat_OBJECTS) $(kdb_test_stat_LDADD) $(LIBS)
-
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -547,7 +526,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_kdb_bucket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_kdb_kyotocabinet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_kdb_manager.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_stat_manager.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

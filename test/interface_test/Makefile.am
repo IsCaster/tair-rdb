@@ -8,13 +8,13 @@ AM_CPPFLAGS= @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I${top_srcdir}/src/storage \
 			 -I${top_srcdir}/src/client \
        -I${top_srcdir}/src  \
-       -I${top_srcdir}/src/storage/kdb/kyotocabinet
+       -I${top_srcdir}/src/storage/kdb/kyotocabinet \
+			 -I/opt/gtest-1.7.0/include
 
 LDADD= \
 	  $(top_builddir)/src/client/.libs/libtairclientapi.a \
 	  $(top_builddir)/src/storage/mdb/libmdb.a \
 	  $(top_builddir)/src/storage/fdb/libfdb.a \
-	  $(top_builddir)/src/storage/kdb/libkdb.a \
     ${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	  $(TBLIB_ROOT)/lib/libtbnet.a \
 	  $(TBLIB_ROOT)/lib/libtbsys.a 
@@ -37,7 +37,7 @@ source_list=${base_source} \
 
 AM_LDFLAGS=-lpthread -lgtest  -lz -lrt ${BOOST_LDFLAGS} ${GCOV_LIB}  @BOOST_THREAD_LIB@
 
-sbin_PROGRAMS=interface_test kdb_test_stat kdb_test_manager kdb_test_bucket kdb_test_kyotocabinet
+sbin_PROGRAMS=interface_test kdb_test_manager kdb_test_bucket kdb_test_kyotocabinet
 
 interface_test_SOURCES=${source_list}
 

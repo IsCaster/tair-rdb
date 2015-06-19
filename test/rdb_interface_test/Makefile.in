@@ -105,10 +105,6 @@ hash_normal_test_OBJECTS = $(am_hash_normal_test_OBJECTS)
 hash_normal_test_LDADD = $(LDADD)
 hash_normal_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -120,10 +116,6 @@ hdel_general_test_OBJECTS = $(am_hdel_general_test_OBJECTS)
 hdel_general_test_LDADD = $(LDADD)
 hdel_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_hget_general_test_OBJECTS = hget_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -131,10 +123,6 @@ hget_general_test_OBJECTS = $(am_hget_general_test_OBJECTS)
 hget_general_test_LDADD = $(LDADD)
 hget_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_hgetall_general_test_OBJECTS = hgetall_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -142,10 +130,6 @@ hgetall_general_test_OBJECTS = $(am_hgetall_general_test_OBJECTS)
 hgetall_general_test_LDADD = $(LDADD)
 hgetall_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_hmget_general_test_OBJECTS = hmget_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -153,10 +137,6 @@ hmget_general_test_OBJECTS = $(am_hmget_general_test_OBJECTS)
 hmget_general_test_LDADD = $(LDADD)
 hmget_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_hmset_general_test_OBJECTS = hmset_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -164,10 +144,6 @@ hmset_general_test_OBJECTS = $(am_hmset_general_test_OBJECTS)
 hmset_general_test_LDADD = $(LDADD)
 hmset_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_hset_general_test_OBJECTS = hset_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -175,10 +151,6 @@ hset_general_test_OBJECTS = $(am_hset_general_test_OBJECTS)
 hset_general_test_LDADD = $(LDADD)
 hset_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_sadd_general_test_OBJECTS = sadd_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -186,10 +158,6 @@ sadd_general_test_OBJECTS = $(am_sadd_general_test_OBJECTS)
 sadd_general_test_LDADD = $(LDADD)
 sadd_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_set_normal_test_OBJECTS = set_normal_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -197,10 +165,6 @@ set_normal_test_OBJECTS = $(am_set_normal_test_OBJECTS)
 set_normal_test_LDADD = $(LDADD)
 set_normal_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_smembers_general_test_OBJECTS = smembers_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -208,10 +172,6 @@ smembers_general_test_OBJECTS = $(am_smembers_general_test_OBJECTS)
 smembers_general_test_LDADD = $(LDADD)
 smembers_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_srem_general_test_OBJECTS = srem_general_test.$(OBJEXT) \
 	$(am__objects_1)
@@ -219,10 +179,6 @@ srem_general_test_OBJECTS = $(am_srem_general_test_OBJECTS)
 srem_general_test_LDADD = $(LDADD)
 srem_general_test_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 am_test_test_helper_OBJECTS = test_test_helper.$(OBJEXT) \
 	$(am__objects_1)
@@ -230,10 +186,6 @@ test_test_helper_OBJECTS = $(am_test_test_helper_OBJECTS)
 test_test_helper_LDADD = $(LDADD)
 test_test_helper_DEPENDENCIES =  \
 	$(top_builddir)/src/client/.libs/libtairclientapi.a \
-	$(top_builddir)/src/storage/mdb/libmdb.a \
-	$(top_builddir)/src/storage/fdb/libfdb.a \
-	$(top_builddir)/src/storage/kdb/libkdb.a \
-	${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	$(TBLIB_ROOT)/lib/libtbnet.a $(TBLIB_ROOT)/lib/libtbsys.a
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -469,15 +421,11 @@ AM_CPPFLAGS = @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I${top_srcdir}/src/dataserver \
 			 -I${top_srcdir}/src/plugin \
        -I${top_srcdir}/src  \
-       -I${top_srcdir}/test/gtest \
+       -I/opt/gtest-1.7.0/include \
        -I${top_srcdir}/src/storage/kdb/kyotocabinet
 
 LDADD = \
 	  $(top_builddir)/src/client/.libs/libtairclientapi.a \
-	  $(top_builddir)/src/storage/mdb/libmdb.a \
-	  $(top_builddir)/src/storage/fdb/libfdb.a \
-	  $(top_builddir)/src/storage/kdb/libkdb.a \
-    ${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	  $(TBLIB_ROOT)/lib/libtbnet.a \
 	  $(TBLIB_ROOT)/lib/libtbsys.a 
 
@@ -485,7 +433,7 @@ source_list = base_test.hpp \
             test_helper.hpp \
             test_helper.cpp
 
-AM_LDFLAGS = -static -lpthread -L${top_srcdir}/test/gtest/lib -lgtest_main -lgtest  -lz -lrt ${BOOST_LDFLAGS} ${GCOV_LIB}  @BOOST_THREAD_LIB@
+AM_LDFLAGS = -static -lpthread -L/opt/gtest-1.7.0/lib -lgtest_main -lgtest  -lz -lrt ${BOOST_LDFLAGS} ${GCOV_LIB}  @BOOST_THREAD_LIB@
 sadd_general_test_SOURCES = sadd_general_test.cpp ${source_list}
 smembers_general_test_SOURCES = smembers_general_test.cpp ${source_list}
 srem_general_test_SOURCES = srem_general_test.cpp ${source_list}

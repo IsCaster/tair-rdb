@@ -10,15 +10,11 @@ AM_CPPFLAGS= @BOOST_CPPFLAGS@ -I$(TBLIB_ROOT)/include/tbsys \
 			 -I${top_srcdir}/src/dataserver \
 			 -I${top_srcdir}/src/plugin \
        -I${top_srcdir}/src  \
-       -I${top_srcdir}/test/gtest \
+       -I/opt/gtest-1.7.0/include \
        -I${top_srcdir}/src/storage/kdb/kyotocabinet
 
 LDADD= \
 	  $(top_builddir)/src/client/.libs/libtairclientapi.a \
-	  $(top_builddir)/src/storage/mdb/libmdb.a \
-	  $(top_builddir)/src/storage/fdb/libfdb.a \
-	  $(top_builddir)/src/storage/kdb/libkdb.a \
-    ${top_builddir}/src/storage/kdb/kyotocabinet/libkyotocabinet.a \
 	  $(TBLIB_ROOT)/lib/libtbnet.a \
 	  $(TBLIB_ROOT)/lib/libtbsys.a 
 
@@ -26,7 +22,7 @@ source_list=base_test.hpp \
             test_helper.hpp \
             test_helper.cpp
 
-AM_LDFLAGS=-static -lpthread -L${top_srcdir}/test/gtest/lib -lgtest_main -lgtest  -lz -lrt ${BOOST_LDFLAGS} ${GCOV_LIB}  @BOOST_THREAD_LIB@
+AM_LDFLAGS=-static -lpthread -L/opt/gtest-1.7.0/lib -lgtest_main -lgtest  -lz -lrt ${BOOST_LDFLAGS} ${GCOV_LIB}  @BOOST_THREAD_LIB@
 
 sbin_PROGRAMS=sadd_general_test smembers_general_test srem_general_test hset_general_test hget_general_test hmget_general_test hmset_general_test hgetall_general_test hdel_general_test hash_normal_test set_normal_test test_test_helper
 
