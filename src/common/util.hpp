@@ -49,7 +49,7 @@ namespace tair
       public:
 
          static char *conv_show_string(char *str, int size, char *ret = NULL, int msize = 0) 
-          {
+          { 
             int index = 0;
             if (ret == NULL) {
                msize = size*3+5;

@@ -61,9 +61,16 @@ namespace tair
 
     bool encode (tbnet::DataBuffer * output)
     {
-      assert (false);
-      // not support cpp api now
-      return false;
+      //assert (false);
+      // not support cpp api now//commented 6.30
+      CREATE_HEADER;
+
+      PUT_INT32_TO_BUFFER (output, start);
+      PUT_INT32_TO_BUFFER (output, end);
+      PUT_INT32_TO_BUFFER (output, withscore);
+      PUT_DATAENTRY_TO_BUFFER (output, key);
+
+      return true;
     }
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
@@ -106,13 +113,14 @@ namespace tair
     }
 
     ~response_zrevrange () {
-      for (size_t i = 0; i < values.size(); ++i)
+      /*for (size_t i = 0; i < values.size(); ++i)
       {
     	data_entry *entry = values[i];
     	if (entry != NULL)
     	  delete (entry);
       }
-      values.clear ();
+      values.clear ();*/
+      CLEAR_DATA_VECTOR(values,sfree);//added 6.30
     }
 
     bool encode (tbnet::DataBuffer * output)
@@ -137,8 +145,17 @@ namespace tair
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
-      // not support in cpp api;
-      return false;
+      // not support in cpp api;//commented 6.30
+      GETKEY_FROM_INT32(input, config_version); 
+      GETKEY_FROM_INT16(input, version);
+      GETKEY_FROM_INT32(input, code);
+      GETKEY_FROM_DATAVECTOR(input, values);
+	  
+      for(size_t i = 0; i < values.size(); i++) {
+          values[i]->set_version(version);
+		  //printf("values[%d] is %s\n",i,hexStr(values[i]->get_data(),values[i]->get_size()).c_str());
+      }
+      return true;
     }
 
     void set_meta (uint32_t config_version, uint32_t code)
@@ -146,6 +163,16 @@ namespace tair
       this->config_version = config_version;
       //this->version           = version;
       this->code = code;
+    }
+
+	int get_code ()
+    {
+        return code;
+    }
+
+    void set_code (int cde)
+    {
+        code = cde;
     }
 
     void set_version(uint16_t version)
@@ -159,10 +186,17 @@ namespace tair
     	return;
       values.push_back (data);
     }
+
+	void alloc_free(int ifree)
+    {
+        sfree = ifree;
+    }
+	
   public:
     uint32_t config_version;
     uint16_t version;
     uint32_t code;
+	int sfree;
     vector <data_entry *> values;
     vector<double> scores;
   };

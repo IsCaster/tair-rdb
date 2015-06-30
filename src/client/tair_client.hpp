@@ -83,6 +83,7 @@ namespace tair {
       void do_cmd_lindex(VSTRING &param);
 
       //set
+	  void do_cmd_scard(VSTRING &param);
       void do_cmd_sadd(VSTRING &param);
       void do_cmd_smembers(VSTRING &param);
       void do_cmd_srem(VSTRING &param);
@@ -96,7 +97,11 @@ namespace tair {
       void do_cmd_hdel(VSTRING &param);
 	  
 	  //sorted set
+	  void do_cmd_zcard(VSTRING &param);//added 6.29
 	  void do_cmd_zadd(VSTRING &param);
+	  void do_cmd_zrem(VSTRING &param);//added 6.30
+	  void do_cmd_zrange(VSTRING &param);
+	  void do_cmd_zrevrange(VSTRING &param);//added 6.30
 	  void do_cmd_zrangebyscore(VSTRING &param);
     private:
 #ifdef HAVE_LIBREADLINE

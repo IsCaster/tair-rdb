@@ -40,9 +40,12 @@ namespace tair
 
     bool encode (tbnet::DataBuffer * output)
     {
-      assert (0);
-      //cpp in futrue
-      return false;
+      //assert (0);  //commented 6.29
+      //cpp in futrue   //commented 6.29
+      CREATE_HEADER;
+	  PUT_DATAENTRY_TO_BUFFER (output, key);
+      
+      return true;
     }
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
@@ -74,17 +77,22 @@ namespace tair
     bool encode (tbnet::DataBuffer * output)
     {
       output->writeInt32 (config_version);
+	  output->writeInt16 (version);
       output->writeInt32 (code);
-      output->writeInt64 (retnum);
-
+      output->writeInt64 (retnum);//added 6.29
       return true;
     }
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
-      assert (0);
-      //cpp in future
-      return false;
+      //assert (0);//commented 6.29
+      //cpp in future//commented 6.29
+	  GETKEY_FROM_INT32(input, config_version); 
+      GETKEY_FROM_INT16(input, version);
+      GETKEY_FROM_INT32(input, code);
+	  GETKEY_FROM_INT64(input, retnum);
+	  //cout << "decode retnum is: " << retnum <<endl;
+      return true;
     }
 
     void set_meta (uint32_t config_version, uint32_t code)
@@ -104,9 +112,14 @@ namespace tair
     }
 
 	//not used
-	void set_version(uint16_t version) {}
+	void set_version(uint16_t version)
+    {
+        this->version = version;//added 6.29
+    }
+	
   public:
     uint32_t config_version;
+	uint16_t version;
     long long retnum;
   private:
     int32_t code;

@@ -155,7 +155,10 @@ namespace tair {
       int lindex(int area, data_entry &key, int index, data_entry &value);
 
 
-      //sadd
+      //scard
+      int scard(const int area, const data_entry &key, long long &retnum);//added 6.30
+
+	  //sadd
       int sadd(const int area, const data_entry &key, const data_entry &value,
               const int expire, const int version);
       //smembers
@@ -182,8 +185,21 @@ namespace tair {
 
 
       /*add by caster , sorted set operation*/
+	  int zcard(const int area, const data_entry &key, long long &retnum);//added 6.29
+	  
       int zadd(const int area, const data_entry &key,const double score , const data_entry &value,
               const int expire, const int version);
+	  
+	  //zrem added at 6.30
+	  int zrem(const int area, const data_entry &key, const data_entry &value,
+              const int expire, const int version);
+	  //zrevrange added at 6.30
+	  int zrevrange (const int area, const data_entry & key, int32_t start, int32_t end,
+          vector <data_entry *> &values, vector<double> &scores,int32_t withscore);
+	  
+	  //zrange added by zbcwilliam
+	  int zrange (const int area, const data_entry & key, int32_t start, int32_t end,
+          vector <data_entry *> &values, vector<double> &scores,int32_t withscore); 
 
       int zrangebyscore (const int area, const data_entry & key, const double start,const double end,
               vector <data_entry *> &vals, vector<double> &scores,const int limit,const int withscore);
