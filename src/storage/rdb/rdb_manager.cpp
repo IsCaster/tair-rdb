@@ -46,7 +46,7 @@ std::string hexStr(char *data, int len)
     ss<<std::hex;
     ss<<std::setfill('0')<<std::setw(2);
     for(int i(0);i<len;++i)
-        ss<<"\\x"<<(int)data[i];
+        ss<<"\\x"<<(unsigned int)data[i];
     return ss.str();
 }
 

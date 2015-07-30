@@ -23,8 +23,7 @@
 
 namespace tair
 {
-
-
+  inline std::string hexStr(char *data, int len);
   class request_zrange:public base_packet
   {
   public:
@@ -105,13 +104,14 @@ namespace tair
     }
 
     ~response_zrange () {
-      for (size_t i = 0; i < values.size (); ++i)
+      /*for (size_t i = 0; i < values.size (); ++i)
       {
 	    data_entry *entry = values[i];
 	    if (entry != NULL)
 	        delete (entry);
       }
-      values.clear ();
+      values.clear ();*/
+      CLEAR_DATA_VECTOR(values,sfree);//added 6.25
     }
 
     bool encode (tbnet::DataBuffer * output)
@@ -137,8 +137,17 @@ namespace tair
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
-      // not support in cpp api;
-      return false;
+	  //printf("databuffer is %s\n",hexStr(input->getData(),input->getDataLen()).c_str());
+	  GETKEY_FROM_INT32(input, config_version); 
+      GETKEY_FROM_INT16(input, version);
+      GETKEY_FROM_INT32(input, code);
+      GETKEY_FROM_DATAVECTOR(input, values);
+	  
+      for(size_t i = 0; i < values.size(); i++) {
+          values[i]->set_version(version);
+		  //printf("values[%d] is %s\n",i,hexStr(values[i]->get_data(),values[i]->get_size()).c_str());
+      }
+      return true;
     }
 
     void set_meta (uint32_t config_version, uint32_t code)
@@ -153,18 +162,35 @@ namespace tair
         this->version = version;
     }
 
+	int get_code ()
+    {
+        return code;
+    }
+
+    void set_code (int cde)
+    {
+        code = cde;
+    }
+
     void add_data (data_entry * data)
     {
       if (data == NULL)
 	    return;
       values.push_back (data);
     }
+
+	void alloc_free(int ifree)
+    {
+        sfree = ifree;
+    }
+	
   public:
     uint32_t config_version;
     uint16_t version;
     uint32_t code;
     vector<data_entry *> values;
     vector<double> scores;
+	int sfree;
   };
 
   class response_zrangewithscore : public base_packet
@@ -225,8 +251,15 @@ namespace tair
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
-      // not support in cpp api;
-      return false;
+      GETKEY_FROM_INT32(input, config_version); 
+      GETKEY_FROM_INT16(input, version);
+      GETKEY_FROM_INT32(input, code);
+      GETKEY_FROM_DATAVECTOR(input, values);
+
+      for(size_t i = 0; i < values.size(); i++) {
+          values[i]->set_version(version);
+      }
+      return true;
     }
 
     void set_meta (uint32_t config_version, uint32_t code)
@@ -239,6 +272,16 @@ namespace tair
     void set_version(uint16_t version)
     {
         this->version = version;
+    }
+
+	int get_code ()
+    {
+        return code;
+    }
+
+    void set_code (int cde)
+    {
+        code = cde;
     }
 
     void add_data (data_entry * data, double score)

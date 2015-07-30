@@ -117,7 +117,10 @@ namespace tair {
     return impl->lindex(area, key, index, value);
   }
 
-
+  int tair_client_api::scard(const int area,const data_entry & key,long long & retnum) 
+  {
+    return impl->zcard(area, key, retnum);
+  }
   int tair_client_api::sadd(const int area, const data_entry &key, const data_entry &value,
           const int expire, const int version) {
     return impl->sadd(area, key, value, expire, version);
@@ -162,12 +165,32 @@ namespace tair {
           const int expire, const int version) {
     return impl->hdel(area, key, field, expire, version);
   }
+	//zcard added at 6.29
+   int tair_client_api::zcard(const int area, const data_entry &key, long long &retnum) {
+    return impl->zcard(area, key, retnum);
+  }
 
   int tair_client_api::zadd(const int area, const data_entry &key, const double score, const data_entry &value,
           const int expire, const int version) {
     return impl->zadd(area, key, score, value, expire, version);
   }
-    
+  //zrem added at 6.30
+  int tair_client_api::zrem(const int area, const data_entry &key, const data_entry &value,
+          const int expire, const int version) {
+    return impl->zrem(area, key, value, expire, version);
+  }
+
+  //zrevrange added at 6.30
+  int tair_client_api::zrevrange (const int area, const data_entry & key, int32_t start,int32_t end,
+          vector <data_entry *> &values, vector<double> &scores,int32_t withscore) {
+    return impl->zrevrange(area, key, start, end, values, scores,withscore);
+  }
+  
+  //zrange added by zbcwilliam
+  int tair_client_api::zrange (const int area, const data_entry & key, int32_t start,int32_t end,
+          vector <data_entry *> &values, vector<double> &scores,int32_t withscore) {
+    return impl->zrange(area, key, start, end, values, scores,withscore);
+  } 
   int tair_client_api::zrangebyscore (const int area, const data_entry & key, const double start,const double end,
           vector <data_entry *> &vals, vector<double> &scores,const int limit,const int withscore) {
     return impl->zrangebyscore(area, key, start, end, vals, scores,limit,withscore);

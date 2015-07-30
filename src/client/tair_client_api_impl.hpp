@@ -40,6 +40,7 @@
 #include "lrpop_packet.hpp"
 #include "lindex_packet.hpp"
 
+#include "scard_packet.hpp"
 #include "sadd_packet.hpp"
 #include "smembers_packet.hpp"
 #include "srem_packet.hpp"
@@ -51,7 +52,11 @@
 #include "hmget_packet.hpp"
 #include "hdel_packet.hpp"
 
+#include "zcard_packet.hpp"
 #include "zadd_packet.hpp"
+#include "zrem_packet.hpp"
+#include "zrange_packet.hpp"
+#include "zrevrange_packet.hpp"
 #include "zrangebyscore_packet.hpp"
 
 namespace tair {
@@ -123,7 +128,10 @@ namespace tair {
       int lindex(int area, data_entry &key, int index, data_entry &value);
 
 
-      //sadd
+      //scard  added  6.30
+      int scard(const int area, const data_entry &key, long long &retnum);
+
+	  //sadd
       int sadd(const int area, const data_entry &key, const data_entry &value,
               const int expire, const int version);
       //smembers
@@ -147,14 +155,27 @@ namespace tair {
       int hmget(const int area, const data_entry &key, const vector<data_entry*> &fields, vector<data_entry*> &values);
       //hdel
       int hdel(const int area, const data_entry &key, const data_entry &field, const int expire, const int version);
-      
-      
+      //zcard added at 6.29
+      int zcard(const int area, const data_entry &key, long long &retnum);
+	  
       int zadd(const int area, const data_entry &key, const double score, const data_entry &value,
           const int expire, const int version);
+	  
+	  //zrem added at 6.29
+	  int zrem(const int area, const data_entry &key, const data_entry &value,
+              const int expire, const int version);
+
+	  //zrange
+      int zrange (const int area, const data_entry & key, int32_t start, int32_t end,
+          vector <data_entry *> &values, vector<double> &scores,int32_t withscore);
+	  
+	  //zrevrange added at 6.30
+	  int zrevrange (const int area, const data_entry & key, int32_t start, int32_t end,
+          vector <data_entry *> &values, vector<double> &scores,int32_t withscore);
       
       int zrangebyscore (const int area, const data_entry & key, const double start,const double end,
           vector <data_entry *> &vals, vector<double> &scores,const int limit,const int withscore);
-
+	  
       int add_count(int area,
           const data_entry &key,
           int count,

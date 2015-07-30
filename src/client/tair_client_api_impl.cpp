@@ -682,6 +682,87 @@ FAIL:
     return ret;
   }
 
+  //scard added by zbcwilliam at 6.30; imitate zcard
+  int tair_client_impl::scard(const int area, const data_entry &key, long long &retnum) {
+    //check
+    if(!key_entry_check(key)){
+      return TAIR_RETURN_ITEMSIZE_ERROR;
+    }
+    if( area < 0 || area >= TAIR_MAX_AREA_COUNT){
+      return TAIR_RETURN_INVALID_ARGUMENT;
+    }
+
+    //get server list
+    vector<uint64_t> server_list;
+    if ( !get_server_id(key, server_list)) {
+      TBSYS_LOG(DEBUG, "can not find serverId, return false");
+      return -1;
+    }
+    TBSYS_LOG(DEBUG,"scard from server:%s",tbsys::CNetUtil::addrToString(server_list[0]).c_str());
+
+    //init packet
+    int ret = TAIR_RETURN_SEND_FAILED;
+    wait_object *cwo = 0;
+    base_packet *tpacket = 0;
+    request_scard*request = new request_scard();
+	request->area = area;
+	request->key = key;
+	TBSYS_LOG(DEBUG,"scard key=%s",key.get_data());  //get_data called
+	
+
+    cwo = this_wait_object_manager->create_wait_object();
+
+    //send request
+    if( send_request(server_list[0],request,cwo->get_id()) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        delete request;
+        return ret;
+    }
+
+    //get response
+    if( (ret = get_response(cwo,1,tpacket)) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        TBSYS_LOG(ERROR,"all requests are failed");
+        return ret;
+    }
+
+    assert(tpacket != NULL);
+
+    if (tpacket->getPCode() == TAIR_RESP_SCARD_PACKET) {
+        response_scard*response = (response_scard*)tpacket;
+        ret = response->get_code();
+        if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+            send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+        }
+        TBSYS_LOG(DEBUG, "end scard:ret:%d",ret);
+
+        new_config_version = response->config_version;
+
+		//cout << "response->retnum is: " << response->retnum <<std::endl;
+		retnum = response->retnum;//added 6.29
+		
+        this_wait_object_manager->destroy_wait_object(cwo);
+    } else {
+        if (tpacket->getPCode() == TAIR_RESP_RETURN_PACKET) {
+            response_return *r = (response_return *)tpacket;
+            ret = r->get_code();
+            if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+                new_config_version = r->config_version;
+                send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+            }
+        }
+
+        this_wait_object_manager->destroy_wait_object(cwo);
+
+        TBSYS_LOG(WARN, " failure: %s:%s",
+            tbsys::CNetUtil::addrToString(server_list[0]).c_str(),
+            get_error_msg(ret));
+    }
+
+    return ret;
+  }
+
+
   //sadd
   int tair_client_impl::sadd(const int area, const data_entry &key, const data_entry &value,
           const int expire, const int version) {
@@ -1857,6 +1938,87 @@ FAIL:
     return ret;
   }
 
+  
+  //zcard added by zbcwilliam at 6.29; imitate srem
+  int tair_client_impl::zcard(const int area, const data_entry &key, long long &retnum) {
+    //check
+    if(!key_entry_check(key)){
+      return TAIR_RETURN_ITEMSIZE_ERROR;
+    }
+    if( area < 0 || area >= TAIR_MAX_AREA_COUNT){
+      return TAIR_RETURN_INVALID_ARGUMENT;
+    }
+
+    //get server list
+    vector<uint64_t> server_list;
+    if ( !get_server_id(key, server_list)) {
+      TBSYS_LOG(DEBUG, "can not find serverId, return false");
+      return -1;
+    }
+    TBSYS_LOG(DEBUG,"zcard from server:%s",tbsys::CNetUtil::addrToString(server_list[0]).c_str());
+
+    //init packet
+    int ret = TAIR_RETURN_SEND_FAILED;
+    wait_object *cwo = 0;
+    base_packet *tpacket = 0;
+    request_zcard*request = new request_zcard();
+	request->area = area;
+	request->key = key;
+	TBSYS_LOG(DEBUG,"zcard key=%s",key.get_data());  //get_data called
+	
+
+    cwo = this_wait_object_manager->create_wait_object();
+
+    //send request
+    if( send_request(server_list[0],request,cwo->get_id()) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        delete request;
+        return ret;
+    }
+
+    //get response
+    if( (ret = get_response(cwo,1,tpacket)) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        TBSYS_LOG(ERROR,"all requests are failed");
+        return ret;
+    }
+
+    assert(tpacket != NULL);
+
+    if (tpacket->getPCode() == TAIR_RESP_ZCARD_PACKET) {
+        response_zcard*response = (response_zcard*)tpacket;
+        ret = response->get_code();
+        if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+            send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+        }
+        TBSYS_LOG(DEBUG, "end zcard:ret:%d",ret);
+
+        new_config_version = response->config_version;
+
+		//cout << "response->retnum is: " << response->retnum <<std::endl;
+		retnum = response->retnum;//added 6.29
+		
+        this_wait_object_manager->destroy_wait_object(cwo);
+    } else {
+        if (tpacket->getPCode() == TAIR_RESP_RETURN_PACKET) {
+            response_return *r = (response_return *)tpacket;
+            ret = r->get_code();
+            if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+                new_config_version = r->config_version;
+                send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+            }
+        }
+
+        this_wait_object_manager->destroy_wait_object(cwo);
+
+        TBSYS_LOG(WARN, " failure: %s:%s",
+            tbsys::CNetUtil::addrToString(server_list[0]).c_str(),
+            get_error_msg(ret));
+    }
+
+    return ret;
+  }
+
   int tair_client_impl::zadd(const int area, const data_entry &key, const double score, const data_entry &value,
           const int expire, const int version)
   {
@@ -1940,6 +2102,267 @@ FAIL:
     return ret;
   }
 
+
+  //zrem added 6.30
+  int tair_client_impl::zrem(const int area, const data_entry &key, const data_entry &value,
+          const int expire, const int version) {
+    //check
+    if(!key_entry_check(key)){
+      return TAIR_RETURN_ITEMSIZE_ERROR;
+    }
+    if( area < 0 || area >= TAIR_MAX_AREA_COUNT){
+      return TAIR_RETURN_INVALID_ARGUMENT;
+    }
+
+    //get server list
+    vector<uint64_t> server_list;
+    if ( !get_server_id(key, server_list)) {
+      TBSYS_LOG(DEBUG, "can not find serverId, return false");
+      return -1;
+    }
+    TBSYS_LOG(DEBUG,"zrem from server:%s",tbsys::CNetUtil::addrToString(server_list[0]).c_str());
+
+    //init packet
+    int ret = TAIR_RETURN_SEND_FAILED;
+    wait_object *cwo = 0;
+    base_packet *tpacket = 0;
+    request_zrem *packet = new request_zrem();
+	packet->area = area;
+	packet->version = version;
+	packet->expire = expire;
+	packet->key = key;
+	packet->value = value;
+
+    cwo = this_wait_object_manager->create_wait_object();
+
+    //send request
+    if( send_request(server_list[0],packet,cwo->get_id()) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        delete packet;
+        return ret;
+    }
+
+    //get response
+    if( (ret = get_response(cwo,1,tpacket)) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        TBSYS_LOG(ERROR,"all requests are failed");
+        return ret;
+    }
+
+    assert(tpacket != NULL);
+
+    if (tpacket->getPCode() == TAIR_RESP_ZREM_PACKET) {
+        response_zrem *response = (response_zrem *)tpacket;
+        ret = response->get_code();
+        if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+            send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+        }
+        TBSYS_LOG(DEBUG, "end zrem:ret:%d",ret);
+
+        new_config_version = response->config_version;
+        this_wait_object_manager->destroy_wait_object(cwo);
+    } else {
+        if (tpacket->getPCode() == TAIR_RESP_RETURN_PACKET) {
+            response_return *r = (response_return *)tpacket;
+            ret = r->get_code();
+            if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+                new_config_version = r->config_version;
+                send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+            }
+        }
+
+        this_wait_object_manager->destroy_wait_object(cwo);
+
+        TBSYS_LOG(WARN, " failure: %s:%s",
+            tbsys::CNetUtil::addrToString(server_list[0]).c_str(),
+            get_error_msg(ret));
+    }
+
+    return ret;
+  }  
+
+  
+  //zrange
+  int tair_client_impl::zrange (const int area, const data_entry & key, int32_t start,int32_t end,
+      vector <data_entry *> &values, vector<double> &scores,int32_t withscore)
+  {
+    //check
+    if(!key_entry_check(key)){
+      return TAIR_RETURN_ITEMSIZE_ERROR;
+    }
+    if( area < 0 || area >= TAIR_MAX_AREA_COUNT){
+      return TAIR_RETURN_INVALID_ARGUMENT;
+    }
+
+    //get server list
+    vector<uint64_t> server_list;
+    if ( !get_server_id(key, server_list)) {
+      TBSYS_LOG(DEBUG, "can not find serverId, return false");
+      return -1;
+    }
+    TBSYS_LOG(DEBUG,"zrange from server:%s",tbsys::CNetUtil::addrToString(server_list[0]).c_str());
+
+	//init packet
+    int ret = TAIR_RETURN_SEND_FAILED;
+    wait_object *cwo = NULL;
+    base_packet *tpacket = NULL;
+    request_zrange *request = new request_zrange();    //changed
+    request->area=area;
+    request->key=key;
+    request->start=start;
+    request->end=end;
+	request->withscore=withscore;//6.11-22.22
+    TBSYS_LOG(DEBUG,"zrange key=%s",key.get_data());  //get_data called
+
+    cwo = this_wait_object_manager->create_wait_object();
+
+    //send request
+    if( send_request(server_list[0], request, cwo->get_id()) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        delete request;
+		printf("send request OK\n");
+        return ret;
+    }
+
+    TBSYS_LOG(DEBUG,"zrange get_response");				//changed
+
+    //get response
+    if( (ret = get_response(cwo, 1, tpacket)) < 0 )/*get_response make tpacket not null*/ {
+        this_wait_object_manager->destroy_wait_object(cwo);
+        TBSYS_LOG(ERROR,"all requests are failed");  //error occours
+        return ret;
+    }
+
+    assert(tpacket != NULL);
+	printf("assert tpacket not null OK\n");
+
+    if (tpacket->getPCode() == TAIR_RESP_ZRANGE_PACKET) {
+        response_zrange*response = (response_zrange*)tpacket;
+        ret = response->get_code();         //get_code called;
+        if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+            send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+        }
+        TBSYS_LOG(DEBUG, "end zrange:ret:%d",ret);
+
+        response->alloc_free(false);         //added 6.25
+        scores = response->scores;			//added
+        values = response->values;			//pay attention !!!
+        /*for(size_t i = 0; i < values.size(); i++) {
+		  printf("values[%d] is %s\n",i,hexStr(values[i]->get_data(),values[i]->get_size()).c_str());
+        }*///added 6.25
+        new_config_version = response->config_version;
+        this_wait_object_manager->destroy_wait_object(cwo);
+    } else {
+        if (tpacket->getPCode() == TAIR_RESP_RETURN_PACKET) {
+            response_return *r = (response_return *)tpacket;
+            ret = r->get_code();            //get_code is used here. attention!!
+            if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+                new_config_version = r->config_version;
+                send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+            }
+        }
+
+        this_wait_object_manager->destroy_wait_object(cwo);
+
+        TBSYS_LOG(WARN, " failure: %s:%s",
+            tbsys::CNetUtil::addrToString(server_list[0]).c_str(),
+            get_error_msg(ret));
+    }
+
+    return ret;
+  }
+
+  //zrevrange added 6.30
+  int tair_client_impl::zrevrange (const int area, const data_entry & key, int32_t start,int32_t end,
+      vector <data_entry *> &values, vector<double> &scores,int32_t withscore)
+  {
+    //check
+    if(!key_entry_check(key)){
+      return TAIR_RETURN_ITEMSIZE_ERROR;
+    }
+    if( area < 0 || area >= TAIR_MAX_AREA_COUNT){
+      return TAIR_RETURN_INVALID_ARGUMENT;
+    }
+
+    //get server list
+    vector<uint64_t> server_list;
+    if ( !get_server_id(key, server_list)) {
+      TBSYS_LOG(DEBUG, "can not find serverId, return false");
+      return -1;
+    }
+    TBSYS_LOG(DEBUG,"zrevrange from server:%s",tbsys::CNetUtil::addrToString(server_list[0]).c_str());
+
+	//init packet
+    int ret = TAIR_RETURN_SEND_FAILED;
+    wait_object *cwo = NULL;
+    base_packet *tpacket = NULL;
+    request_zrevrange *request = new request_zrevrange();    //changed
+    request->area=area;
+    request->key=key;
+    request->start=start;
+    request->end=end;
+	request->withscore=withscore;//6.11-22.22
+    TBSYS_LOG(DEBUG,"zrevrange key=%s",key.get_data());  //get_data called
+
+    cwo = this_wait_object_manager->create_wait_object();
+
+    //send request
+    if( send_request(server_list[0], request, cwo->get_id()) < 0 ){
+        this_wait_object_manager->destroy_wait_object(cwo);
+        delete request;
+		printf("send request OK\n");
+        return ret;
+    }
+
+    TBSYS_LOG(DEBUG,"zrevrange get_response");				//changed
+
+    //get response
+    if( (ret = get_response(cwo, 1, tpacket)) < 0 )/*get_response make tpacket not null*/ {
+        this_wait_object_manager->destroy_wait_object(cwo);
+        TBSYS_LOG(ERROR,"all requests are failed");  //error occours
+        return ret;
+    }
+
+    assert(tpacket != NULL);
+	printf("assert tpacket not null OK\n");
+
+    if (tpacket->getPCode() == TAIR_RESP_ZREVRANGE_PACKET) {
+        response_zrevrange*response = (response_zrevrange*)tpacket;
+        ret = response->get_code();         //get_code called;
+        if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+            send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+        }
+        TBSYS_LOG(DEBUG, "end zrevrange:ret:%d",ret);
+
+        response->alloc_free(false);         //added 6.25
+        scores = response->scores;			//added
+        values = response->values;			//pay attention !!!
+        /*for(size_t i = 0; i < values.size(); i++) {
+		  printf("values[%d] is %s\n",i,hexStr(values[i]->get_data(),values[i]->get_size()).c_str());
+        }*///added 6.25
+        new_config_version = response->config_version;
+        this_wait_object_manager->destroy_wait_object(cwo);
+    } else {
+        if (tpacket->getPCode() == TAIR_RESP_RETURN_PACKET) {
+            response_return *r = (response_return *)tpacket;
+            ret = r->get_code();            //get_code is used here. attention!!
+            if (ret == TAIR_RETURN_SERVER_CAN_NOT_WORK) {
+                new_config_version = r->config_version;
+                send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
+            }
+        }
+
+        this_wait_object_manager->destroy_wait_object(cwo);
+
+        TBSYS_LOG(WARN, " failure: %s:%s",
+            tbsys::CNetUtil::addrToString(server_list[0]).c_str(),
+            get_error_msg(ret));
+    }
+
+    return ret;
+  }
+
+//zrangebyscore
   int tair_client_impl::zrangebyscore (const int area, const data_entry & key, const double start,const double end,
       vector <data_entry *> &values, vector<double> &scores,const int limit,const int withscore)
   {
@@ -1968,13 +2391,16 @@ FAIL:
     request->start=start;
     request->end=end;
     TBSYS_LOG(DEBUG,"zrangebyscore key=%s",key.get_data());
+	//TBSYS_LOG(ERROR,"zrangebyscore key=%s\n",key.get_data());  //added 6.25
 
     cwo = this_wait_object_manager->create_wait_object();
+	//TBSYS_LOG(ERROR,"cwo->get_id=%d\n",cwo->get_id());  //added 6.25
 
     //send request
     if( send_request(server_list[0], request, cwo->get_id()) < 0 ){
         this_wait_object_manager->destroy_wait_object(cwo);
         delete request;
+		printf("send request OK\n");
         return ret;
     }
 
@@ -1988,6 +2414,7 @@ FAIL:
     }
 
     assert(tpacket != NULL);
+	printf("assert tpacket not null OK\n");
 
     if (tpacket->getPCode() == TAIR_RESP_ZRANGEBYSCORE_PACKET) {
         response_zrangebyscore *response = (response_zrangebyscore *)tpacket;

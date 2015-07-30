@@ -152,9 +152,14 @@ namespace tair
     }
 
 	//not used
-	void set_version(uint16_t version) {}
+	//void set_version(uint16_t version) {}  //commented 6.26
+	void set_version(uint16_t version)
+    {
+        this->version = version;
+    }
   public:
     uint32_t config_version;
+	uint16_t version;                   //added 6.26
     int retvalue;
   private:
     int32_t code;
