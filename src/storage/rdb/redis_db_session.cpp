@@ -2184,10 +2184,23 @@ int redis_db_session::zrange(MKEY, int start, int end, OITEMSVSN,
     {
         if(node->type == NODE_TYPE_ROBJ) {
             robj* obj = (robj*)(node->obj.obj);
-            (*item)[items_index].data_len = sdslen((char*)(obj->ptr));
-            (*item)[items_index].data = new char[(*item)[items_index].data_len];
-            memcpy((*item)[items_index].data, obj->ptr, sdslen((char*)obj->ptr));
-            items_index++;
+            if(obj->encoding== REDIS_STRING)
+            {
+                (*item)[items_index].data_len = sdslen((char*)(obj->ptr));
+                (*item)[items_index].data = new char[(*item)[items_index].data_len];
+                memcpy((*item)[items_index].data, obj->ptr, sdslen((char*)obj->ptr));
+                items_index++;
+            }
+            else if(obj->encoding==REDIS_ENCODING_INT)
+            {
+                //decode the string from long/void*
+                char * long_to_str=new char[31];
+                snprintf(long_to_str,31,"%ld",obj->ptr);
+                (*item)[items_index].data_len = strnlen(long_to_str,31); 
+                (*item)[items_index].data = long_to_str; 
+                items_index++;
+                log_debug("redis_db_session::genericZrangebyscore() REDIS_ENCODING_INT ptr=%ld,data=%s",obj->ptr,long_to_str );
+            }
         } else if(node->type == NODE_TYPE_BUFFER) {
             (*item)[items_index].data_len = node->size;
             (*item)[items_index].data = new char[(*item)[items_index].data_len];
