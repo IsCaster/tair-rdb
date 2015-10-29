@@ -7,3 +7,4 @@ cp -rf /home/caster/tair_rdb_bin/* /opt/tair_rdb_bin
 rm -f /opt/tair_rdb_bin/logs/*
 /opt/tair_rdb_bin/tair.sh start_ds
 /opt/tair_rdb_bin/tair.sh start_cs
+sleep 3
