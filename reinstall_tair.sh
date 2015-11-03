@@ -5,6 +5,7 @@ sleep 2
 rm /home/caster/tair_rdb_bin/etc -rf
 cp -rf /home/caster/tair_rdb_bin/* /opt/tair_rdb_bin
 rm -f /opt/tair_rdb_bin/logs/*
+rm -f /opt/tair_rdb_bin/data/data/*
 /opt/tair_rdb_bin/tair.sh start_ds
 /opt/tair_rdb_bin/tair.sh start_cs
 sleep 3
