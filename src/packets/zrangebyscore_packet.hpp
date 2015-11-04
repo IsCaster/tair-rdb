@@ -114,8 +114,8 @@ namespace tair
       if (values.size () > RESPONSE_VALUES_MAXSIZE)
 	    return false;
 
-      output->writeInt32 (config_version);
-      output->writeInt16 (version);
+      output->writeInt32 (config_version); 
+      output->writeInt16(version);
       output->writeInt32 (code);
       output->writeInt32 (values.size ());
       data_entry *entry = NULL;
@@ -130,8 +130,8 @@ namespace tair
 
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
-      GETKEY_FROM_INT32(input, config_version); 
-      GETKEY_FROM_INT16(input, version);
+      GETKEY_FROM_INT32(input, config_version);  
+      GETKEY_FROM_INT16(input,version);
       GETKEY_FROM_INT32(input, code);
       GETKEY_FROM_DATAVECTOR(input, values);
 

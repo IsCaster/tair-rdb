@@ -121,8 +121,8 @@ namespace tair
 	    log_warn("zrange values_size = %d, larger than RESPONSE_VALUES_MAXSZIE", values.size());
 		return false;
       }
-      output->writeInt32 (config_version);
-      output->writeInt16 (version);
+      output->writeInt32 (config_version); 
+      output->writeInt16(version);
       output->writeInt32 (code);
       output->writeInt32 (values.size ());
       data_entry *entry = NULL;
@@ -138,8 +138,8 @@ namespace tair
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
 	  //printf("databuffer is %s\n",hexStr(input->getData(),input->getDataLen()).c_str());
-	  GETKEY_FROM_INT32(input, config_version); 
-      GETKEY_FROM_INT16(input, version);
+	  GETKEY_FROM_INT32(input, config_version);  
+      GETKEY_FROM_INT16(input,version);
       GETKEY_FROM_INT32(input, code);
       GETKEY_FROM_DATAVECTOR(input, values);
 	  
@@ -225,8 +225,8 @@ namespace tair
 		return false;
       }
 
-      output->writeInt32 (config_version);
-      output->writeInt16 (version);
+      output->writeInt32 (config_version); 
+      output->writeInt16(version);
       output->writeInt32 (code);
       output->writeInt32 (values.size ());
 
@@ -252,7 +252,8 @@ namespace tair
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
       GETKEY_FROM_INT32(input, config_version); 
-      GETKEY_FROM_INT16(input, version);
+	 
+      GETKEY_FROM_INT16(input,version);
       GETKEY_FROM_INT32(input, code);
       GETKEY_FROM_DATAVECTOR(input, values);
 

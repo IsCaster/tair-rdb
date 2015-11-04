@@ -77,7 +77,7 @@ namespace tair
     bool encode (tbnet::DataBuffer * output)
     {
       output->writeInt32 (config_version);
-	  output->writeInt16 (version);
+	  //113 output->writeInt16 (version);
       output->writeInt32 (code);
       output->writeInt64 (retnum);//added 6.29
       return true;
@@ -88,7 +88,7 @@ namespace tair
       //assert (0);//commented 6.29
       //cpp in future//commented 6.29
 	  GETKEY_FROM_INT32(input, config_version); 
-      GETKEY_FROM_INT16(input, version);
+      //113 GETKEY_FROM_INT16(input, version);
       GETKEY_FROM_INT32(input, code);
 	  GETKEY_FROM_INT64(input, retnum);
 	  //cout << "decode retnum is: " << retnum <<endl;

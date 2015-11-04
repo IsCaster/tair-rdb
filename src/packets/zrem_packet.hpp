@@ -53,8 +53,8 @@ namespace tair
     bool encode (tbnet::DataBuffer * output)
     {
       CREATE_HEADER;
-
-      PUT_INT16_TO_BUFFER (output, version);
+ 
+      PUT_INT16_TO_BUFFER(output,version);
       PUT_INT32_TO_BUFFER (output, expire);
       PUT_DATAENTRY_TO_BUFFER (output, key);
       PUT_DATAENTRY_TO_BUFFER (output, value);
@@ -65,8 +65,8 @@ namespace tair
     bool decode (tbnet::DataBuffer * input, tbnet::PacketHeader * header)
     {
       HEADER_VERIFY;
-
-      GETKEY_FROM_INT16 (input, version);
+ 
+      GETKEY_FROM_INT16(input,version);
       GETKEY_FROM_INT32 (input, expire);
 
       GETKEY_FROM_DATAENTRY (input, key);

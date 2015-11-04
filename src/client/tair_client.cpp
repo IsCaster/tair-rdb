@@ -436,7 +436,7 @@ namespace tair {
             );
       }else if (cmd == NULL || strcmp(cmd, "sadd") == 0) {
          fprintf(stderr,
-                 "------------------------------------------------\n"
+                 "------------------------------------------------\n" 
                  "SYNOPSIS   : sadd key value [area] [version] [expired]\n"
             );
       } else if (cmd == NULL || strcmp(cmd, "smembers") == 0) {
