@@ -2521,7 +2521,7 @@ FAIL:
             }
             TBSYS_LOG(DEBUG, "end zrange:ret:%d", ret);
 
-            response->alloc_free(false);         //added 6.25
+            response->alloc_free(0);         //added 6.25
             scores = response->scores;      //added
             values = response->values;      //pay attention !!!
             /*for(size_t i = 0; i < values.size(); i++) {
@@ -2540,11 +2540,9 @@ FAIL:
                 send_fail_count = UPDATE_SERVER_TABLE_INTERVAL;
             }
 
-            for(int i = 0, length = response->values.size(); i < length; ++i)
-            {
-                values.push_back(new data_entry(*response->values[i]));
-            }
+            response->alloc_free(false);
 
+            values = response->values;
             scores = response->scores;
 
             new_config_version = response->config_version;

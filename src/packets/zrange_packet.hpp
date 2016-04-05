@@ -105,13 +105,6 @@ namespace tair
 
         ~response_zrange ()
         {
-            /*for (size_t i = 0; i < values.size (); ++i)
-            {
-              data_entry *entry = values[i];
-              if (entry != NULL)
-                  delete (entry);
-            }
-            values.clear ();*/
             CLEAR_DATA_VECTOR(values, sfree); //added 6.25
         }
 
@@ -203,21 +196,16 @@ namespace tair
         {
             setPCode (TAIR_RESP_ZRANGEWITHSCORE_PACKET);
 
+            sfree = 1;
             config_version = 0;
+
             values.clear ();
             scores.clear ();
         }
 
         ~response_zrangewithscore ()
         {
-            for (size_t i = 0; i < values.size (); ++i)
-            {
-                data_entry *entry = values[i];
-                if (entry != NULL)
-                    delete (entry);
-            }
-            values.clear ();
-            scores.clear ();
+            CLEAR_DATA_VECTOR(values, sfree);
         }
 
         bool encode (tbnet::DataBuffer *output)
@@ -233,8 +221,6 @@ namespace tair
             output->writeInt32 (code);
             output->writeInt32 (values.size ());
 
-            TBSYS_LOG(DEBUG, "----------------start response_zrangewithscore encode--------------");
-
             char buffer[8];
             data_entry *entry = NULL;
             double score = 0.0;
@@ -244,8 +230,6 @@ namespace tair
                 output->writeInt32 (entry->get_size ());
                 output->writeBytes (entry->get_data (), entry->get_size ());
 
-                TBSYS_LOG(DEBUG, "encode bytes, len : %d, content: %s", entry->get_size (), entry->get_data());
-
                 score = 0;
                 if (i < scores.size())
                 {
@@ -253,12 +237,8 @@ namespace tair
                 }
                 DOUBLE_TO_BYTES(score, buffer);
                 output->writeBytes(buffer, 8);
-
-                TBSYS_LOG(DEBUG, "encode double: %f", score);
             }
             
-            TBSYS_LOG(DEBUG, "----------------end response_zrangewithscore encode--------------");
-
             return true;
         }
 
@@ -273,11 +253,8 @@ namespace tair
 
             for(int i = 0; i < count; ++i)
             {
-                int n = input->readInt32();
-                char* bytes = new char[n + 1];
-                input->readBytes(bytes, n);
-                bytes[n] = '\0';
-                data_entry* value = new data_entry(bytes, n, false );
+                data_entry *value = new data_entry();
+                GETKEY_FROM_DATAENTRY(input, *value);
 
                 double score;
                 input->readBytes((void*)(&score), 8);
@@ -323,7 +300,16 @@ namespace tair
             values.push_back (data);
             scores.push_back (score);
         }
+
+        // if auto_clear is true, packet will auto free all values when destructed
+        // else it's customer's responsibility to free values
+
+        void alloc_free(int auto_clear)
+        {
+            sfree = auto_clear;
+        }
     public:
+        int sfree;
         uint32_t config_version;
         uint16_t version;
         int32_t code;

@@ -966,12 +966,19 @@ namespace tair
 
             for(int i = 0, length = dataset.size(); i < length; ++i)
             {
-                printf("value : %s, score : %f\n", dataset[i]->get_data(), scoreset[i]);
+                data_entry* entry = dataset[i];
+
+                if(entry == NULL) continue;
+
+                char* rawdata = util::string_util::conv_show_string(entry->get_data(), entry->get_size());
+                fprintf(stderr, "LEN: %d data: %s, rawdata: %s\n", entry->get_size(), entry->get_data(), rawdata);
+                fprintf(stderr, "score : %f\n", scoreset[i]);
                 delete dataset[i];
             }
         }
 
         if (akey) free(akey);
+
         return ;
     }
 

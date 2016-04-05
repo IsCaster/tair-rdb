@@ -290,17 +290,23 @@ namespace tair
         TAIR_STAT_ONEHOST = 256
     };
 
-#define CLEAR_DATA_VECTOR(values, needfree) do {                    \
-    if ((needfree)) {                                               \
-        data_entry *entry = NULL;                                   \
-        for(size_t i = 0; i < (values).size(); ++i) {               \
-            entry = (values)[i];                                    \
-            if (entry != NULL) {                                    \
-                delete (entry);                                     \
-            }                                                       \
+#define INSURE_BYTES_AVALIABLE(input, n)                            \
+    do                                                              \
+    {                                                               \
+        if((input)->getDataLen() < (n))                             \
+        {                                                           \
+            log_warn("cannot read %d bytes from buffer");           \
+            return false;                                           \
         }                                                           \
     }                                                               \
-    (values).clear();                                               \
+    while(0)
+
+#define CLEAR_DATA_VECTOR(values, needfree) do {                    \
+    if ((needfree)) {                                               \
+        for(size_t i = 0; i < (values).size(); ++i) {               \
+            delete ((values)[i]);                                   \
+        }                                                           \
+    }                                                               \
 }while(0)
 
 #define PUT_DATAVECTOR_TO_BUFFER(output,values) do {                \
@@ -320,49 +326,31 @@ namespace tair
 }while(0)
 
 #define GETKEY_FROM_DATAENTRY(input,key) do {                  \
-    if((input)->getDataLen() < 4) {                            \
-        log_warn("buffer data too few.");                      \
-        return false;                                          \
-    }                                                          \
-    int32_t len = (input)->readInt32();                        \
-    if (len < 0 || (input)->getDataLen() < len) {              \
-        log_warn("buffer data too few.");                      \
-        return false;                                          \
-    }                                                          \
+    int len;                                                   \
+    GETKEY_FROM_INT32((input), len);                           \
+    INSURE_BYTES_AVALIABLE((input), len);                      \
     (key).set_data(NULL, len);                                 \
-    if ((input)->readBytes((key).get_data(), len) == false) {  \
-        log_warn("buffer data too few.");                      \
-        return false;                                          \
-    }                                                          \
+    (input)->readBytes((key).get_data(), len);                 \
 }while(0)
 
 #define PUT_INT64_TO_BUFFER(output,key)  (output)->writeInt64((key))
 
 #define GETKEY_FROM_INT64(input,key) do {                     \
-    if((input)->getDataLen() < 8) {                           \
-        log_warn("buffer data too few");                      \
-        return false;                                         \
-    }                                                         \
+    INSURE_BYTES_AVALIABLE((input), 8);                       \
     (key) = (input)->readInt64();                             \
 }while(0)
 
 #define PUT_INT32_TO_BUFFER(output,key)  (output)->writeInt32((key))
 
 #define GETKEY_FROM_INT32(input,key) do {                   \
-    if((input)->getDataLen() < 4) {                         \
-        log_warn("buffer data too few");                    \
-        return false;                                       \
-    }                                                       \
+    INSURE_BYTES_AVALIABLE((input), 4);                     \
     (key) = (input)->readInt32();                           \
 }while(0)
 
 #define PUT_INT16_TO_BUFFER(output,key)  (output)->writeInt16((key))
 
 #define GETKEY_FROM_INT16(input,key) do {                   \
-    if((input)->getDataLen() < 2) {                         \
-        log_warn("buffer data too few");                    \
-        return false;                                       \
-    }                                                       \
+    INSURE_BYTES_AVALIABLE((input), 2);                     \
     (key) = (input)->readInt16();                           \
 }while(0)
 
@@ -373,10 +361,7 @@ namespace tair
 }while(0)
 
 #define GETKEY_FROM_DOUBLE(input,score) do {                \
-    if((input)->getDataLen() < 8) {                         \
-        log_warn("buffer data too few");                    \
-        return false;                                       \
-    }                                                       \
+    INSURE_BYTES_AVALIABLE((input), 8);                     \
     char buffer[8];                                         \
     (input)->readBytes(buffer,8);                           \
     BYTES_TO_DOUBLE(buffer, (score));                       \
@@ -387,32 +372,24 @@ namespace tair
 
 #define DOUBLE_TO_BYTES(score, buffer) memcpy((buffer), &(score), 8)
 
-#define GETKEY_FROM_DATAVECTOR(input,values) do {                       \
-        if((input)->getDataLen() < 4) {                                 \
-            log_warn("buffer data too few");                            \
-            return false;                                               \
-        }                                                               \
-        int32_t vlen    = (input)->readInt32();                         \
-        int32_t dlen    = 0;                                            \
-        data_entry *entry = NULL;                                       \
-        for (int i = 0; i < vlen; ++i) {                                \
-            if((input)->getDataLen() < 4) {                             \
-                log_warn("buffer data too few");                        \
-                return false;                                           \
-            }                                                           \
-            dlen = (input)->readInt32();                                \
-            if (dlen == 0) {                                            \
-                continue;                                               \
-            }                                                           \
-            entry = new data_entry();                                   \
-            entry->set_data(NULL, dlen);                                \
-            if((input)->readBytes(entry->get_data(), dlen) == false) {  \
-                log_warn("buffer data too few");                        \
-                return false;                                           \
-            }                                                           \
-                                                                        \
-            (values).push_back(entry);                                  \
-        }                                                               \
+#define GETKEY_FROM_DATAVECTOR(input,values) do {                   \
+    int vlen;                                                       \
+    GETKEY_FROM_INT32((input), vlen);                               \
+                                                                    \
+    int dlen = 0;                                                   \
+    data_entry *entry = NULL;                                       \
+    for (int i = 0; i < vlen; ++i) {                                \
+        GETKEY_FROM_INT32((input), dlen);                           \
+        if (dlen == 0) {                                            \
+            continue;                                               \
+        }                                                           \
+        entry = new data_entry();                                   \
+        entry->set_data(NULL, dlen);                                \
+                                                                    \
+        INSURE_BYTES_AVALIABLE((input), dlen);                      \
+        (input)->readBytes(entry->get_data(), dlen);                \
+        (values).push_back(entry);                                  \
+    }                                                               \
 }while(0)
 
 #define CREATE_HEADER do {                                  \
@@ -421,14 +398,10 @@ namespace tair
 }while(0)
 
 #define HEADER_VERIFY do {                                  \
-    if ((header)->_dataLen < 3) {                           \
-        log_warn( "buffer data too few.");                  \
-        return false;                                       \
-    }                                                       \
+    INSURE_BYTES_AVALIABLE((input), 3);                     \
     (server_flag) = (input)->readInt8();                    \
     (area) = (input)->readInt16();                          \
 }while(0)
-
 
     class base_packet: public tbnet::Packet
     {
