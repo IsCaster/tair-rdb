@@ -183,11 +183,12 @@ namespace tair
             sfree = ifree;
         }
     public:
-        uint32_t config_version;
         uint16_t version;
+        uint32_t config_version;
         int32_t code;
-        vector<data_entry *> values;
         int sfree;
+        vector<data_entry *> values;
+        vector<double> scores;
     };
 
 }       // end namespace
