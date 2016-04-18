@@ -2738,6 +2738,8 @@ FAIL:
 
             response->alloc_free(false);
             values = response->values;
+            scores = response->scores;
+
             new_config_version = response->config_version;
             this_wait_object_manager->destroy_wait_object(cwo);
         }
@@ -3378,8 +3380,11 @@ FAIL:
 
     {
         assert(cwo != 0 && wait_count >= 0);
+        printf("1\n");
         cwo->wait_done(wait_count, timeout);
+        printf("2\n");
         base_packet *packet = cwo->get_packet();
+        printf("packet address: %d\n", packet);
         if(packet == 0)
         {
             return TAIR_RETURN_TIMEOUT;

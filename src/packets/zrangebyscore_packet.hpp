@@ -126,7 +126,19 @@ namespace tair
             for(size_t i = 0, length = values.size(); i < length; ++i)
             {
                 PUT_DATAENTRY_TO_BUFFER(output, *values[i]);
-                PUT_DOUBLE_TO_BUFFER(output, scores[i]);
+            }
+
+            // if scores is not empty
+            // then his size must be equal to values's size
+
+            if(!scores.empty())
+            {
+                PUT_INT32_TO_BUFFER(output, values.size());
+
+                for(size_t i = 0, length = scores.size(); i < length; ++i)
+                {
+                    PUT_DOUBLE_TO_BUFFER(output, scores[i]);
+                }
             }
 
             return true;
@@ -145,12 +157,19 @@ namespace tair
             {
                 data_entry* value = new data_entry();
                 GETKEY_FROM_DATAENTRY(input, *value);
-
-                double score;
-                GETKEY_FROM_DOUBLE(input, score);
-
                 values.push_back(value);
-                scores.push_back(score);
+            }
+
+            GETKEY_FROM_INT32(input, count);
+
+            if(count)
+            {
+                for(int i = 0; i < count; ++i)
+                {
+                    double score;
+                    GETKEY_FROM_DOUBLE(input, score);
+                    scores.push_back(score);
+                }
             }
 
             for(size_t i = 0; i < values.size(); i++)
@@ -195,6 +214,7 @@ namespace tair
         {
             sfree = ifree;
         }
+
     public:
         uint16_t version;
         uint32_t config_version;
@@ -203,6 +223,5 @@ namespace tair
         vector<data_entry *> values;
         vector<double> scores;
     };
-
 }       // end namespace
 #endif

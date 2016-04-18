@@ -82,11 +82,13 @@ namespace tair
         resp->setChannelId(request->getChannelId());
         resp->set_meta(heart_beat->get_client_version(), rc);
         resp->set_version((request->key).get_version());
+        
         if (request->get_connection()->postPacket(resp) == false)
         {
             delete resp;
             resp = 0;
         }
+
         send_return = false;
         return rc;
     }
@@ -723,6 +725,13 @@ namespace tair
                                       request->start, request->end, resp->values, resp->scores, -1, request->withscore);
 
         TBSYS_LOG(DEBUG, "withscore: %d", request->withscore);
+        TBSYS_LOG(DEBUG, "erea: %d", request->area);
+
+        for(size_t i = 0, length = resp->values.size(); i < length; ++i)
+        {
+            TBSYS_LOG(DEBUG, "value: %s\n", resp->values[i]->get_data());
+        }
+
         for(size_t i = 0, length = resp->scores.size(); i < length; ++i)
         {
             TBSYS_LOG(DEBUG, "scores[%d]: %f", i, resp->scores[i]);
