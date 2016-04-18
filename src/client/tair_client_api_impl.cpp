@@ -2698,18 +2698,16 @@ FAIL:
         int ret = TAIR_RETURN_SEND_FAILED;
         wait_object *cwo = NULL;
         base_packet *tpacket = NULL;
+        
         request_zrangebyscore *request = new request_zrangebyscore();
         request->area = area;
         request->key = key;
         request->start = start;
         request->end = end;
-        TBSYS_LOG(DEBUG, "zrangebyscore key=%s", key.get_data());
-        //TBSYS_LOG(ERROR,"zrangebyscore key=%s\n",key.get_data());  //added 6.25
+        request->withscore = withscore;
 
         cwo = this_wait_object_manager->create_wait_object();
-        //TBSYS_LOG(ERROR,"cwo->get_id=%d\n",cwo->get_id());  //added 6.25
 
-        //send request
         if( send_request(server_list[0], request, cwo->get_id()) < 0 )
         {
             this_wait_object_manager->destroy_wait_object(cwo);
@@ -2718,9 +2716,6 @@ FAIL:
             return ret;
         }
 
-        TBSYS_LOG(DEBUG, "zrangebyscore get_response");
-
-        //get response
         if( (ret = get_response(cwo, 1, tpacket)) < 0 )
         {
             this_wait_object_manager->destroy_wait_object(cwo);

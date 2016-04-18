@@ -16,21 +16,18 @@
  */
 #ifndef TAIR_PACKET_ZRANGEBYSCORE_PACKET_H
 #define TAIR_PACKET_ZRANGEBYSCORE_PACKET_H
-#include "base_packet.hpp"
+
 #include <stdint.h>
 
+#include "base_packet.hpp"
 #include "storage_manager.hpp"
 
 #include <tbsys.h>
 #include <sstream>
 #include <iomanip>
 
-
-
-
 namespace tair
 {
-
     inline std::string hexStr(char *data, int len)
     {
         std::stringstream ss;
@@ -50,8 +47,10 @@ namespace tair
 
             server_flag = 0;
             area = 0;
+
             start = 0.0;
             end = 0.0;
+            withscore = 0;
         }
 
         request_zrangebyscore (request_zrangebyscore &packet)
@@ -61,6 +60,7 @@ namespace tair
             area = packet.area;
             start = packet.start;
             end = packet.end;
+            withscore = packet.withscore;
             key.clone (packet.key);
         }
 
@@ -71,6 +71,7 @@ namespace tair
             PUT_DOUBLE_TO_BUFFER (output, start);
             PUT_DOUBLE_TO_BUFFER (output, end);
             PUT_DATAENTRY_TO_BUFFER (output, key);
+            PUT_INT32_TO_BUFFER(output, withscore);
 
             return true;
         }
@@ -82,15 +83,19 @@ namespace tair
             GETKEY_FROM_DOUBLE (input, start);
             GETKEY_FROM_DOUBLE (input, end);
             GETKEY_FROM_DATAENTRY (input, key);
+            GETKEY_FROM_INT32(input, withscore);
+
+            TBSYS_LOG(DEBUG, "withscore: %d", withscore);
 
             return true;
         }
 
     public:
         uint16_t area;
-        data_entry key;
         double start;
         double end;
+        int withscore;
+        data_entry key;
     };
 
     class response_zrangebyscore: public base_packet
