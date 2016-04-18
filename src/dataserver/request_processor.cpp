@@ -719,9 +719,15 @@ namespace tair
                                     bool &send_return)
     {
         PROC_BEFORE(response_zrangebyscore);
-        vector<double> scores;
         rc = tair_mgr->zrangebyscore (request->area, request->key,
-                                      request->start, request->end, resp->values, scores, -1, 0);
+                                      request->start, request->end, resp->values, resp->scores, -1, request->withscore);
+
+        TBSYS_LOG(DEBUG, "withscore: %d", request->withscore);
+        for(size_t i = 0, length = resp->scores.size(); i < length; ++i)
+        {
+            TBSYS_LOG(DEBUG, "scores[%d]: %f", i, resp->scores[i]);
+        }
+        
         return PROC_AFTER;
     }
 

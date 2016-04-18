@@ -105,9 +105,8 @@ namespace tair
         response_zrangebyscore ()
         {
             setPCode (TAIR_RESP_ZRANGEBYSCORE_PACKET);
-
             config_version = 0;
-            values.clear ();
+            sfree = 1;
         }
 
         ~response_zrangebyscore ()
@@ -117,20 +116,19 @@ namespace tair
 
         bool encode (tbnet::DataBuffer *output)
         {
-            if (values.size () > RESPONSE_VALUES_MAXSIZE)
-                return false;
+            if (values.size () > RESPONSE_VALUES_MAXSIZE) return false;
 
-            output->writeInt32 (config_version);
-            output->writeInt16(version);
-            output->writeInt32 (code);
-            output->writeInt32 (values.size ());
-            data_entry *entry = NULL;
-            for (size_t i = 0; i < values.size (); ++i)
+            PUT_INT32_TO_BUFFER(output, config_version);
+            PUT_INT16_TO_BUFFER(output, version);
+            PUT_INT32_TO_BUFFER(output, code);
+            PUT_INT32_TO_BUFFER(output, values.size());
+
+            for(size_t i = 0, length = values.size(); i < length; ++i)
             {
-                entry = values[i];
-                output->writeInt32 (entry->get_size ());
-                output->writeBytes (entry->get_data (), entry->get_size ());
+                PUT_DATAENTRY_TO_BUFFER(output, *values[i]);
+                PUT_DOUBLE_TO_BUFFER(output, scores[i]);
             }
+
             return true;
         }
 
@@ -139,12 +137,27 @@ namespace tair
             GETKEY_FROM_INT32(input, config_version);
             GETKEY_FROM_INT16(input, version);
             GETKEY_FROM_INT32(input, code);
-            GETKEY_FROM_DATAVECTOR(input, values);
+
+            int count;
+            GETKEY_FROM_INT32(input, count);
+
+            for(int i = 0; i < count; ++i)
+            {
+                data_entry* value = new data_entry();
+                GETKEY_FROM_DATAENTRY(input, *value);
+
+                double score;
+                GETKEY_FROM_DOUBLE(input, score);
+
+                values.push_back(value);
+                scores.push_back(score);
+            }
 
             for(size_t i = 0; i < values.size(); i++)
             {
                 values[i]->set_version(version);
             }
+
             return true;
         }
 
