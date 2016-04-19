@@ -111,6 +111,7 @@ namespace tair
 
         ~response_zrangebyscore ()
         {
+            TBSYS_LOG(DEBUG, "response_zrangebyscore destructor");
             CLEAR_DATA_VECTOR(values, sfree);
         }
 
@@ -121,9 +122,11 @@ namespace tair
             PUT_INT32_TO_BUFFER(output, config_version);
             PUT_INT16_TO_BUFFER(output, version);
             PUT_INT32_TO_BUFFER(output, code);
+
+            int count = (int)values.size();
             PUT_INT32_TO_BUFFER(output, values.size());
 
-            for(size_t i = 0, length = values.size(); i < length; ++i)
+            for(int i = 0; i < count; ++i)
             {
                 PUT_DATAENTRY_TO_BUFFER(output, *values[i]);
             }
@@ -131,11 +134,12 @@ namespace tair
             // if scores is not empty
             // then his size must be equal to values's size
 
-            if(!scores.empty())
-            {
-                PUT_INT32_TO_BUFFER(output, values.size());
+            count = (int)scores.size();
+            PUT_INT32_TO_BUFFER(output,  count);
 
-                for(size_t i = 0, length = scores.size(); i < length; ++i)
+            if(count)
+            {
+                for(size_t i = 0; i < count; ++i)
                 {
                     PUT_DOUBLE_TO_BUFFER(output, scores[i]);
                 }

@@ -3380,9 +3380,7 @@ FAIL:
 
     {
         assert(cwo != 0 && wait_count >= 0);
-        printf("1\n");
         cwo->wait_done(wait_count, timeout);
-        printf("2\n");
         base_packet *packet = cwo->get_packet();
         printf("packet address: %d\n", packet);
         if(packet == 0)

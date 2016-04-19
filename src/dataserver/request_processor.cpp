@@ -23,9 +23,9 @@
      (_ret) == TAIR_RETURN_DATA_LEN_LIMITED))
 
 
-#define PROC_BEFORE(type) type* resp = NULL;          \
+#define PROC_BEFORE(type) type* resp = NULL;                \
    int rc = process_before(this, tair_mgr,  request, resp); \
-   if (rc != TAIR_RETURN_FAILED)                \
+   if (rc != TAIR_RETURN_FAILED)                            \
      return rc
 
 #define PROC_AFTER  process_after(heart_beat, resp, request, rc, send_return)
@@ -82,11 +82,12 @@ namespace tair
         resp->setChannelId(request->getChannelId());
         resp->set_meta(heart_beat->get_client_version(), rc);
         resp->set_version((request->key).get_version());
-        
+
         if (request->get_connection()->postPacket(resp) == false)
         {
             delete resp;
             resp = 0;
+            TBSYS_LOG(DEBUG, "delete zrangebyscore packet");
         }
 
         send_return = false;
