@@ -87,7 +87,6 @@ namespace tair
         {
             delete resp;
             resp = 0;
-            TBSYS_LOG(DEBUG, "delete zrangebyscore packet");
         }
 
         send_return = false;
@@ -685,8 +684,9 @@ namespace tair
         if (request->withscore == 0)
         {
             PROC_BEFORE(response_zrange);
+            vector<double> scores;
             rc = tair_mgr->zrange(request->area, request->key,
-                                  request->start, request->end, resp->values, resp->scores, 0);
+                                  request->start, request->end, resp->values, scores, 0);
 
             return PROC_AFTER;
         }
@@ -724,19 +724,6 @@ namespace tair
         PROC_BEFORE(response_zrangebyscore);
         rc = tair_mgr->zrangebyscore (request->area, request->key,
                                       request->start, request->end, resp->values, resp->scores, -1, request->withscore);
-
-        TBSYS_LOG(DEBUG, "withscore: %d", request->withscore);
-        TBSYS_LOG(DEBUG, "erea: %d", request->area);
-
-        for(size_t i = 0, length = resp->values.size(); i < length; ++i)
-        {
-            TBSYS_LOG(DEBUG, "value: %s\n", resp->values[i]->get_data());
-        }
-
-        for(size_t i = 0, length = resp->scores.size(); i < length; ++i)
-        {
-            TBSYS_LOG(DEBUG, "scores[%d]: %f", i, resp->scores[i]);
-        }
         
         return PROC_AFTER;
     }

@@ -886,48 +886,11 @@ namespace tair
         data_entry mkey = key;
         mkey.merge_area (area);
 
-        TBSYS_LOG(DEBUG, "----------------prev--------------------");
-
-        TBSYS_LOG(DEBUG, "key : %s", key.get_data());
-        TBSYS_LOG(DEBUG, "start : %d", start);
-        TBSYS_LOG(DEBUG, "end : %d", end);
-        TBSYS_LOG(DEBUG, "withscore : %d", withscore);
-
-        for(int i = 0, length = values.size(); i < length; ++i)
-        {
-            TBSYS_LOG(DEBUG, "values %d : %s", i, values[i]->get_data());
-        }
-
-        for(int i = 0, length = scores.size(); i < length; ++i)
-        {
-            TBSYS_LOG(DEBUG, "values %d : %f", i, scores[i]);
-        }
-
-        TBSYS_LOG(DEBUG, "----------------end prev--------------------");
-
         int rc = storage_mgr->zrange (area, mkey, start, end, values, scores, withscore);
-
-        TBSYS_LOG(DEBUG, "----------------post--------------------");
-        
-        TBSYS_LOG(DEBUG, "key : %s", key.get_data());
-        TBSYS_LOG(DEBUG, "start : %d", start);
-        TBSYS_LOG(DEBUG, "end : %d", end);
-        TBSYS_LOG(DEBUG, "withscore : %d", withscore);
-
-        for(int i = 0, length = values.size(); i < length; ++i)
-        {
-            TBSYS_LOG(DEBUG, "values %d : %s", i, values[i]->get_data());
-        }
-
-        for(int i = 0, length = scores.size(); i < length; ++i)
-        {
-            TBSYS_LOG(DEBUG, "values %d : %f", i, scores[i]);
-        }
-
-        TBSYS_LOG(DEBUG, "----------------end post--------------------");
 
         key.data_meta = mkey.data_meta;
         TAIR_STAT.stat_get (area, rc);
+        
         return rc;
     }
 

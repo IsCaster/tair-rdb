@@ -85,8 +85,6 @@ namespace tair
             GETKEY_FROM_DATAENTRY (input, key);
             GETKEY_FROM_INT32(input, withscore);
 
-            TBSYS_LOG(DEBUG, "withscore: %d", withscore);
-
             return true;
         }
 
@@ -98,9 +96,10 @@ namespace tair
         data_entry key;
     };
 
+    #define RESPONSE_VALUES_MAXSIZE 32767
+
     class response_zrangebyscore: public base_packet
     {
-#define RESPONSE_VALUES_MAXSIZE 32767
     public:
         response_zrangebyscore ()
         {
@@ -111,7 +110,6 @@ namespace tair
 
         ~response_zrangebyscore ()
         {
-            TBSYS_LOG(DEBUG, "response_zrangebyscore destructor");
             CLEAR_DATA_VECTOR(values, sfree);
         }
 
@@ -122,20 +120,13 @@ namespace tair
             PUT_INT32_TO_BUFFER(output, config_version);
             PUT_INT16_TO_BUFFER(output, version);
             PUT_INT32_TO_BUFFER(output, code);
-
-            int count = (int)values.size();
-            PUT_INT32_TO_BUFFER(output, values.size());
-
-            for(int i = 0; i < count; ++i)
-            {
-                PUT_DATAENTRY_TO_BUFFER(output, *values[i]);
-            }
+            PUT_DATAVECTOR_TO_BUFFER(output, values);
 
             // if scores is not empty
             // then his size must be equal to values's size
 
-            count = (int)scores.size();
-            PUT_INT32_TO_BUFFER(output,  count);
+            int count = (int)scores.size();
+            PUT_INT32_TO_BUFFER(output, count);
 
             if(count)
             {
@@ -153,17 +144,9 @@ namespace tair
             GETKEY_FROM_INT32(input, config_version);
             GETKEY_FROM_INT16(input, version);
             GETKEY_FROM_INT32(input, code);
+            GETKEY_FROM_DATAVECTOR(input, values);
 
             int count;
-            GETKEY_FROM_INT32(input, count);
-
-            for(int i = 0; i < count; ++i)
-            {
-                data_entry* value = new data_entry();
-                GETKEY_FROM_DATAENTRY(input, *value);
-                values.push_back(value);
-            }
-
             GETKEY_FROM_INT32(input, count);
 
             if(count)

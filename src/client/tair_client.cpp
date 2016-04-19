@@ -899,17 +899,6 @@ namespace tair
         return ;
     }
 
-
-    //zrange
-    /*
-
-    int zrange (const int area, const data_entry & key, int32_t start,int32_t end,
-       vector <data_entry *> &values, vector<double> &scores, int32_t withscore);
-
-       "SYNOPSIS   : zrange key start end [area] [withscore]\n"
-     */
-
-
     void tair_client::do_cmd_zrange(VSTRING &param)
     {
         if (param.size() < 3U || param.size() > 5U )
@@ -962,7 +951,6 @@ namespace tair
         else if (dataset.size() > 0)
         {
             fprintf(stderr, "KEY: %s\n", param[0]);
-            //printf("dataset.size is: %d\n",dataset.size());
 
             for(int i = 0, length = dataset.size(); i < length; ++i)
             {
@@ -972,7 +960,12 @@ namespace tair
 
                 char* rawdata = util::string_util::conv_show_string(entry->get_data(), entry->get_size());
                 fprintf(stderr, "LEN: %d data: %s, rawdata: %s\n", entry->get_size(), entry->get_data(), rawdata);
-                fprintf(stderr, "score : %f\n", scoreset[i]);
+
+                if(withscore)
+                {
+                    fprintf(stderr, "score : %f\n", scoreset[i]);
+                }
+                
                 delete dataset[i];
             }
         }
@@ -1133,7 +1126,7 @@ namespace tair
                 if (data == NULL) continue;
 
                 char *p = util::string_util::conv_show_string(data->get_data(), data->get_size());
-                fprintf(stderr, "LEN: %d\n, raw data: %s, %s ", data->get_size(), data->get_data(), p);
+                fprintf(stderr, "LEN: %d, raw data: %s, %s\n", data->get_size(), data->get_data(), p);
 
                 if(withscore)
                 {
