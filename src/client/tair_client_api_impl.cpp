@@ -2521,12 +2521,9 @@ FAIL:
             }
             TBSYS_LOG(DEBUG, "end zrange:ret:%d", ret);
 
-            response->alloc_free(0);         //added 6.25
-            scores = response->scores;      //added
-            values = response->values;      //pay attention !!!
-            /*for(size_t i = 0; i < values.size(); i++) {
-              printf("values[%d] is %s\n",i,hexStr(values[i]->get_data(),values[i]->get_size()).c_str());
-            }*///added 6.25
+            response->alloc_free(0);
+            values = response->values;
+
             new_config_version = response->config_version;
             this_wait_object_manager->destroy_wait_object(cwo);
         }
@@ -2698,18 +2695,16 @@ FAIL:
         int ret = TAIR_RETURN_SEND_FAILED;
         wait_object *cwo = NULL;
         base_packet *tpacket = NULL;
+        
         request_zrangebyscore *request = new request_zrangebyscore();
         request->area = area;
         request->key = key;
         request->start = start;
         request->end = end;
-        TBSYS_LOG(DEBUG, "zrangebyscore key=%s", key.get_data());
-        //TBSYS_LOG(ERROR,"zrangebyscore key=%s\n",key.get_data());  //added 6.25
+        request->withscore = withscore;
 
         cwo = this_wait_object_manager->create_wait_object();
-        //TBSYS_LOG(ERROR,"cwo->get_id=%d\n",cwo->get_id());  //added 6.25
 
-        //send request
         if( send_request(server_list[0], request, cwo->get_id()) < 0 )
         {
             this_wait_object_manager->destroy_wait_object(cwo);
@@ -2718,9 +2713,6 @@ FAIL:
             return ret;
         }
 
-        TBSYS_LOG(DEBUG, "zrangebyscore get_response");
-
-        //get response
         if( (ret = get_response(cwo, 1, tpacket)) < 0 )
         {
             this_wait_object_manager->destroy_wait_object(cwo);
@@ -2743,6 +2735,8 @@ FAIL:
 
             response->alloc_free(false);
             values = response->values;
+            scores = response->scores;
+
             new_config_version = response->config_version;
             this_wait_object_manager->destroy_wait_object(cwo);
         }
@@ -3385,11 +3379,14 @@ FAIL:
         assert(cwo != 0 && wait_count >= 0);
         cwo->wait_done(wait_count, timeout);
         base_packet *packet = cwo->get_packet();
+
         if(packet == 0)
         {
             return TAIR_RETURN_TIMEOUT;
         }
+
         tpacket = packet;
+        
         return 0;
     }
 

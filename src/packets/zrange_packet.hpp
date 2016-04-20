@@ -16,14 +16,16 @@
  */
 #ifndef TAIR_PACKET_ZRANGE_PACKET_H
 #define TAIR_PACKET_ZRANGE_PACKET_H
-#include "base_packet.hpp"
-#include <stdint.h>
 
+#include "base_packet.hpp"
 #include "storage_manager.hpp"
+
+#include <stdint.h>
 
 namespace tair
 {
     inline std::string hexStr(char *data, int len);
+
     class request_zrange: public base_packet
     {
     public:
@@ -91,21 +93,20 @@ namespace tair
         int32_t withscore;
     };
 
+    #define RESPONSE_VALUES_MAXSIZE 32767
+
     class response_zrange: public base_packet
     {
-#define RESPONSE_VALUES_MAXSIZE 32767
     public:
         response_zrange ()
         {
             setPCode (TAIR_RESP_ZRANGE_PACKET);
-
             config_version = 0;
-            values.clear ();
         }
 
         ~response_zrange ()
         {
-            CLEAR_DATA_VECTOR(values, sfree); //added 6.25
+            CLEAR_DATA_VECTOR(values, sfree);
         }
 
         bool encode (tbnet::DataBuffer *output)
@@ -115,23 +116,17 @@ namespace tair
                 log_warn("zrange values_size = %d, larger than RESPONSE_VALUES_MAXSZIE", values.size());
                 return false;
             }
-            output->writeInt32 (config_version);
-            output->writeInt16(version);
-            output->writeInt32 (code);
-            output->writeInt32 (values.size ());
-            data_entry *entry = NULL;
-            for (size_t i = 0; i < values.size(); ++i)
-            {
-                entry = values[i];
-                output->writeInt32 (entry->get_size ());
-                output->writeBytes (entry->get_data (), entry->get_size ());
-            }
+
+            PUT_INT32_TO_BUFFER(output, config_version);
+            PUT_INT16_TO_BUFFER(output, version);
+            PUT_INT32_TO_BUFFER(output, code);
+            PUT_DATAVECTOR_TO_BUFFER(output, values);
+            
             return true;
         }
 
         bool decode (tbnet::DataBuffer *input, tbnet::PacketHeader *header)
         {
-            //printf("databuffer is %s\n",hexStr(input->getData(),input->getDataLen()).c_str());
             GETKEY_FROM_INT32(input, config_version);
             GETKEY_FROM_INT16(input, version);
             GETKEY_FROM_INT32(input, code);
@@ -140,15 +135,14 @@ namespace tair
             for(size_t i = 0; i < values.size(); i++)
             {
                 values[i]->set_version(version);
-                //printf("values[%d] is %s\n",i,hexStr(values[i]->get_data(),values[i]->get_size()).c_str());
             }
+
             return true;
         }
 
         void set_meta (uint32_t config_version, uint32_t code)
         {
             this->config_version = config_version;
-            //this->version           = version;
             this->code = code;
         }
 
@@ -184,13 +178,13 @@ namespace tair
         uint16_t version;
         uint32_t code;
         vector<data_entry *> values;
-        vector<double> scores;
         int sfree;
     };
 
+    #define RESPONSE_VALUES_MAXSIZE 32767
+
     class response_zrangewithscore : public base_packet
     {
-#define RESPONSE_VALUES_MAXSIZE 32767
     public:
         response_zrangewithscore ()
         {
@@ -198,9 +192,6 @@ namespace tair
 
             sfree = 1;
             config_version = 0;
-
-            values.clear ();
-            scores.clear ();
         }
 
         ~response_zrangewithscore ()
@@ -216,27 +207,20 @@ namespace tair
                 return false;
             }
 
-            output->writeInt32 (config_version);
-            output->writeInt16(version);
-            output->writeInt32 (code);
-            output->writeInt32 (values.size ());
+            PUT_INT32_TO_BUFFER(output, config_version);
+            PUT_INT16_TO_BUFFER(output, version);
+            PUT_INT32_TO_BUFFER(output, code);
+            PUT_DATAVECTOR_TO_BUFFER(output, values);
 
-            char buffer[8];
-            data_entry *entry = NULL;
-            double score = 0.0;
-            for (size_t i = 0; i < values.size(); ++i)
+            int count = (int)scores.size();
+            PUT_INT32_TO_BUFFER(output, count);
+
+            if(count)
             {
-                entry = values[i];
-                output->writeInt32 (entry->get_size ());
-                output->writeBytes (entry->get_data (), entry->get_size ());
-
-                score = 0;
-                if (i < scores.size())
+                for(int i = 0; i < count; ++i)
                 {
-                    score = scores[i];
+                    PUT_DOUBLE_TO_BUFFER(output, scores[i]);
                 }
-                DOUBLE_TO_BYTES(score, buffer);
-                output->writeBytes(buffer, 8);
             }
             
             return true;
@@ -245,22 +229,21 @@ namespace tair
         bool decode (tbnet::DataBuffer *input, tbnet::PacketHeader *header)
         {
             GETKEY_FROM_INT32(input, config_version);
-
             GETKEY_FROM_INT16(input, version);
             GETKEY_FROM_INT32(input, code);
+            GETKEY_FROM_DATAVECTOR(input, values);
 
-            int count = input->readInt32();
+            int count;
+            GETKEY_FROM_INT32(input, count);
 
-            for(int i = 0; i < count; ++i)
+            if(count)
             {
-                data_entry *value = new data_entry();
-                GETKEY_FROM_DATAENTRY(input, *value);
-
-                double score;
-                input->readBytes((void*)(&score), 8);
-
-                values.push_back(value);
-                scores.push_back(score);
+                for(int i = 0; i < count; ++i)
+                {
+                    double score;
+                    GETKEY_FROM_DOUBLE(input, score);
+                    scores.push_back(score);
+                }
             }
 
             for(size_t i = 0; i < values.size(); i++)

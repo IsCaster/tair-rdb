@@ -16,21 +16,18 @@
  */
 #ifndef TAIR_PACKET_ZRANGEBYSCORE_PACKET_H
 #define TAIR_PACKET_ZRANGEBYSCORE_PACKET_H
-#include "base_packet.hpp"
+
 #include <stdint.h>
 
+#include "base_packet.hpp"
 #include "storage_manager.hpp"
 
 #include <tbsys.h>
 #include <sstream>
 #include <iomanip>
 
-
-
-
 namespace tair
 {
-
     inline std::string hexStr(char *data, int len)
     {
         std::stringstream ss;
@@ -52,6 +49,7 @@ namespace tair
             area = 0;
             start = 0.0;
             end = 0.0;
+            withscore = 0;
         }
 
         request_zrangebyscore (request_zrangebyscore &packet)
@@ -61,6 +59,7 @@ namespace tair
             area = packet.area;
             start = packet.start;
             end = packet.end;
+            withscore = packet.withscore;
             key.clone (packet.key);
         }
 
@@ -71,6 +70,7 @@ namespace tair
             PUT_DOUBLE_TO_BUFFER (output, start);
             PUT_DOUBLE_TO_BUFFER (output, end);
             PUT_DATAENTRY_TO_BUFFER (output, key);
+            PUT_INT32_TO_BUFFER(output, withscore);
 
             return true;
         }
@@ -83,26 +83,35 @@ namespace tair
             GETKEY_FROM_DOUBLE (input, end);
             GETKEY_FROM_DATAENTRY (input, key);
 
+            // js发送zrangebyscore请求时如果withscore=0则请求包中是没有withscore字段的
+            // 如果withscore=1才在请求包中追加withscore，所以为了兼容js需要做出判断
+
+            if(input->getDataLen() == 4)
+            {
+                withscore = input->readInt32();
+            }
+
             return true;
         }
 
     public:
         uint16_t area;
-        data_entry key;
         double start;
         double end;
+        int withscore;
+        data_entry key;
     };
+
+    #define RESPONSE_VALUES_MAXSIZE 32767
 
     class response_zrangebyscore: public base_packet
     {
-#define RESPONSE_VALUES_MAXSIZE 32767
     public:
         response_zrangebyscore ()
         {
             setPCode (TAIR_RESP_ZRANGEBYSCORE_PACKET);
-
             config_version = 0;
-            values.clear ();
+            sfree = 1;
         }
 
         ~response_zrangebyscore ()
@@ -112,20 +121,27 @@ namespace tair
 
         bool encode (tbnet::DataBuffer *output)
         {
-            if (values.size () > RESPONSE_VALUES_MAXSIZE)
-                return false;
+            if (values.size () > RESPONSE_VALUES_MAXSIZE) return false;
 
-            output->writeInt32 (config_version);
-            output->writeInt16(version);
-            output->writeInt32 (code);
-            output->writeInt32 (values.size ());
-            data_entry *entry = NULL;
-            for (size_t i = 0; i < values.size (); ++i)
+            PUT_INT32_TO_BUFFER(output, config_version);
+            PUT_INT16_TO_BUFFER(output, version);
+            PUT_INT32_TO_BUFFER(output, code);
+            PUT_DATAVECTOR_TO_BUFFER(output, values);
+
+            // if scores is not empty
+            // then his size must be equal to values's size
+
+            int count = (int)scores.size();
+            PUT_INT32_TO_BUFFER(output, count);
+
+            if(count)
             {
-                entry = values[i];
-                output->writeInt32 (entry->get_size ());
-                output->writeBytes (entry->get_data (), entry->get_size ());
+                for(size_t i = 0; i < count; ++i)
+                {
+                    PUT_DOUBLE_TO_BUFFER(output, scores[i]);
+                }
             }
+
             return true;
         }
 
@@ -136,10 +152,24 @@ namespace tair
             GETKEY_FROM_INT32(input, code);
             GETKEY_FROM_DATAVECTOR(input, values);
 
+            int count;
+            GETKEY_FROM_INT32(input, count);
+
+            if(count)
+            {
+                for(int i = 0; i < count; ++i)
+                {
+                    double score;
+                    GETKEY_FROM_DOUBLE(input, score);
+                    scores.push_back(score);
+                }
+            }
+
             for(size_t i = 0; i < values.size(); i++)
             {
                 values[i]->set_version(version);
             }
+
             return true;
         }
 
@@ -177,13 +207,14 @@ namespace tair
         {
             sfree = ifree;
         }
-    public:
-        uint32_t config_version;
-        uint16_t version;
-        int32_t code;
-        vector<data_entry *> values;
-        int sfree;
-    };
 
+    public:
+        uint16_t version;
+        uint32_t config_version;
+        int32_t code;
+        int sfree;
+        vector<data_entry *> values;
+        vector<double> scores;
+    };
 }       // end namespace
 #endif

@@ -899,17 +899,6 @@ namespace tair
         return ;
     }
 
-
-    //zrange
-    /*
-
-    int zrange (const int area, const data_entry & key, int32_t start,int32_t end,
-       vector <data_entry *> &values, vector<double> &scores, int32_t withscore);
-
-       "SYNOPSIS   : zrange key start end [area] [withscore]\n"
-     */
-
-
     void tair_client::do_cmd_zrange(VSTRING &param)
     {
         if (param.size() < 3U || param.size() > 5U )
@@ -962,7 +951,6 @@ namespace tair
         else if (dataset.size() > 0)
         {
             fprintf(stderr, "KEY: %s\n", param[0]);
-            //printf("dataset.size is: %d\n",dataset.size());
 
             for(int i = 0, length = dataset.size(); i < length; ++i)
             {
@@ -972,7 +960,12 @@ namespace tair
 
                 char* rawdata = util::string_util::conv_show_string(entry->get_data(), entry->get_size());
                 fprintf(stderr, "LEN: %d data: %s, rawdata: %s\n", entry->get_size(), entry->get_data(), rawdata);
-                fprintf(stderr, "score : %f\n", scoreset[i]);
+
+                if(withscore)
+                {
+                    fprintf(stderr, "score : %f\n", scoreset[i]);
+                }
+                
                 delete dataset[i];
             }
         }
@@ -1113,14 +1106,11 @@ namespace tair
         char *pkey = canonical_key(param[0], &akey, &pkeysize);
         data_entry key(pkey, pkeysize, false);
 
-        vector<data_entry *> dataset; //param->values
-        vector<double> scoreset;  //param->scores
+        vector<data_entry *> dataset;
+        vector<double> scoreset;
 
-        //zrangebyscore
         int ret = client_helper.zrangebyscore(area, key, start, end, dataset, scoreset, limit, withscore);
-        /*for(size_t i=0; i<dataset.size();++i) {
-              printf("dataset[%d] is %s\n",i,dataset[i]->get_data());
-        }*///added 6.25
+
         if (ret != TAIR_RETURN_SUCCESS)
         {
             fprintf(stderr, "zrangebyscore failed: %s.\n", client_helper.get_error_msg(ret));
@@ -1128,27 +1118,30 @@ namespace tair
         else if (dataset.size() > 0)
         {
             fprintf(stderr, "KEY: %s\n", param[0]);
-            //printf("dataset.size is: %d\n",dataset.size());
+
             for(size_t i = 0; i < dataset.size(); i++)
             {
                 data_entry *data = dataset[i];
-                //printf("data address is: %d\n",&data);
-                //printf("data->size is: %d\n",data->get_size());
-                //printf("data->get_data() is: %s\n",data->get_data());
-                if (data == NULL)
-                {
-                    continue;
-                }
-                char *p = util::string_util::conv_show_string(data->get_data(), data->get_size());
-                fprintf(stderr, "LEN: %d\n, raw data: %s, %s\n", data->get_size(), data->get_data(), p);
-                if (p) free(p);
-                delete data;
 
+                if (data == NULL) continue;
+
+                char *p = util::string_util::conv_show_string(data->get_data(), data->get_size());
+                fprintf(stderr, "LEN: %d, raw data: %s, %s\n", data->get_size(), data->get_data(), p);
+
+                if(withscore)
+                {
+                    fprintf(stderr, "score: %f\n", scoreset[i]);
+                }
+
+                if (p) free(p);
+
+                delete data;
             }
-            dataset.clear();
         }
+
         if (akey) free(akey);
-        return ;
+
+        return;
     }
 
 
