@@ -47,7 +47,6 @@ namespace tair
 
             server_flag = 0;
             area = 0;
-
             start = 0.0;
             end = 0.0;
             withscore = 0;
@@ -83,7 +82,14 @@ namespace tair
             GETKEY_FROM_DOUBLE (input, start);
             GETKEY_FROM_DOUBLE (input, end);
             GETKEY_FROM_DATAENTRY (input, key);
-            GETKEY_FROM_INT32(input, withscore);
+
+            // js发送zrangebyscore请求时如果withscore=0则请求包中是没有withscore字段的
+            // 如果withscore=1才在请求包中追加withscore，所以为了兼容js需要做出判断
+
+            if(input->getDataLen() == 4)
+            {
+                withscore = input->readInt32();
+            }
 
             return true;
         }
