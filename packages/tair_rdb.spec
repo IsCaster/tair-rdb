@@ -1,6 +1,6 @@
 Name: %NAME
-Version: 2.3.5.5
-Release: 58.el5
+Version: 2.3.5.6
+Release: 59.el7
 Summary: Taobao key/value storage system
 Group: Application
 URL: http:://yum.corp.alimama.com
