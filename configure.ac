@@ -1,6 +1,6 @@
-AC_INIT(tair_rdb, 2.3.5.5,ruohai@taobao.com)
+AC_INIT(tair_rdb, 2.3.5.6,ruohai@taobao.com)
 
-AM_INIT_AUTOMAKE(tair_rdb, 2.3.5.5)
+AM_INIT_AUTOMAKE(tair_rdb, 2.3.5.6)
 m4_include([ax_boost.m4])
 AC_ARG_WITH([release],
 	    AS_HELP_STRING([--with-release],
