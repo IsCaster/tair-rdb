@@ -7,4 +7,4 @@ rm -f /opt/tair_rdb_bin/logs/*
 rm -f /opt/tair_rdb_bin/data/data/*
 /opt/tair_rdb_bin/tair.sh start_ds
 /opt/tair_rdb_bin/tair.sh start_cs
-sleep 2 
+sleep 5 
